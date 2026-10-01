@@ -1,4 +1,4 @@
-// TODO: el backend no expone GET /auth/me; LoginResponse solo trae el token.
+import type { Role } from "@/types/session";
 
 export interface LoginRequest {
   email: string;
@@ -7,4 +7,5 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   session_token: string;
+  role: Role;
 }

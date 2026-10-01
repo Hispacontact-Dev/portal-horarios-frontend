@@ -26,3 +26,10 @@ next-env.d.ts.bak
 
 # vercel
 .vercel
+
+.claude
+docs
+specs
+AGENTS.md
+CLAUDE.md
+CONTEXT.md

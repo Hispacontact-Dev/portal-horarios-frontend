@@ -1,3 +1,4 @@
+import { readSessionCookie } from "@/lib/session/cookie";
 import type { ApiErrorResponse } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
@@ -11,25 +12,30 @@ export class ApiError extends Error {
   }
 }
 
-function getSessionToken(): string | null {
-  // TODO: leer el token desde la cookie que administra AuthContext.
-  return null;
+let sessionInvalidHandler: (() => void) | null = null;
+
+export function registerSessionInvalidHandler(handler: () => void): void {
+  sessionInvalidHandler = handler;
 }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = getSessionToken();
+  const session = readSessionCookie();
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(session ? { Authorization: `Bearer ${session.token}` } : {}),
       ...init.headers,
     },
   });
 
+  if (response.status === 401 && session !== null) {
+    sessionInvalidHandler?.();
+  }
+
   if (!response.ok) {
-    // TODO: manejar 401 (sesión expirada -> logout), 403 (prohibido), 423 (cuenta bloqueada).
+    // TODO: manejar 403 (prohibido) y 423 (cuenta bloqueada) en los flujos que los necesiten.
     throw new ApiError({ status: response.status, message: response.statusText });
   }
 

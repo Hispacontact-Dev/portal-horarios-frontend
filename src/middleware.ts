@@ -1,18 +1,41 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { NEXT_QUERY_PARAM, SESSION_COOKIE_NAME } from "@/lib/session/constants";
+import type { Session } from "@/types/session";
 
-const SESSION_COOKIE_NAME = "session_token";
+function readSessionFromRequest(request: NextRequest): Session | null {
+  const raw = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Session;
+  } catch {
+    return null;
+  }
+}
 
-// TODO: solo verifica la presencia de la cookie, no valida el token contra el backend
-// (no existe un endpoint GET /auth/me para hacerlo desde el middleware).
+export function isEditOnlyRoute(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  return segments[segments.length - 1] === "nuevo";
+}
+
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const isLoginPage = request.nextUrl.pathname === "/login";
+  const session = readSessionFromRequest(request);
+  const { pathname } = request.nextUrl;
+  const isLoginPage = pathname === "/login";
 
-  if (!token && !isLoginPage) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (isLoginPage) {
+    if (session) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next();
   }
 
-  if (token && isLoginPage) {
+  if (!session) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set(NEXT_QUERY_PARAM, pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (session.role === "lider" && isEditOnlyRoute(pathname)) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -20,5 +43,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!login|api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
