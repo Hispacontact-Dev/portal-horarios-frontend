@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "junta_directiva" | "lider";
+export type UserRole = "admin" | "gestion_humana" | "lider";
 
 export interface User {
   id: string;
@@ -10,7 +10,7 @@ export interface User {
   created_by: string;
 }
 
-// El backend solo permite crear cuentas junta_directiva/lider vía POST /users.
+// El backend solo permite crear cuentas gestion_humana/lider vía POST /users.
 export interface UserCreate {
   full_name: string;
   email: string;

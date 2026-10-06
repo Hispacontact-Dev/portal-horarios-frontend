@@ -4,6 +4,7 @@ export interface Status {
   id: string;
   name: string;
   is_enabled: boolean;
+  is_predefined: boolean;
   created_at: string;
   created_by: string;
   updated_at: string;

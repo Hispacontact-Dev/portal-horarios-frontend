@@ -12,7 +12,7 @@ export function UserForm() {
       <Input name="email" type="email" placeholder="Correo electrónico" />
       <Select name="role">
         <option value="lider">Líder</option>
-        <option value="junta_directiva">Junta Directiva</option>
+        <option value="gestion_humana">Gestión Humana</option>
       </Select>
       <Button type="submit">Crear usuario</Button>
     </form>

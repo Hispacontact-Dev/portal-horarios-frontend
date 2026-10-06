@@ -109,3 +109,19 @@ body {
     transition: none !important;
   }
 }
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.anim-grow {
+  transform-origin: left;
+  animation: grow 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.panel {
+  position: relative;
+  border: 1px solid var(--divider);
+}

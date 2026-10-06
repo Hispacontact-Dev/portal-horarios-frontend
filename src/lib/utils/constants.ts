@@ -14,7 +14,7 @@ export const ROUTE_PATHS = {
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Administrador",
-  junta_directiva: "Junta Directiva",
+  gestion_humana: "Gestión Humana",
   lider: "Líder",
 };
 

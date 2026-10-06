@@ -10,7 +10,7 @@ interface RoleGateProps {
 export function RoleGate({ children }: RoleGateProps) {
   const { session } = useAuth();
 
-  if (session?.role !== "junta_directiva") {
+  if (session?.role !== "gestion_humana") {
     return null;
   }
 

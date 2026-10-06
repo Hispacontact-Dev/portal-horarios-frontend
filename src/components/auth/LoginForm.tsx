@@ -8,6 +8,7 @@ import { NEXT_QUERY_PARAM } from "@/lib/session/constants";
 
 const GENERIC_ERROR_MESSAGE = "Correo o contraseña incorrectos.";
 const LOCKED_ERROR_MESSAGE = "Tu cuenta está bloqueada temporalmente. Intenta más tarde.";
+const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta de nuevo en un momento.";
 
 // Deja correr la animación de éxito antes de redirigir (coincide con la barra `fill`).
 const SUCCESS_REDIRECT_DELAY_MS = 1600;
@@ -45,11 +46,19 @@ export function LoginForm() {
         router.replace(next || "/dashboard");
       }, SUCCESS_REDIRECT_DELAY_MS);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 423) {
-        setErrorMessage(LOCKED_ERROR_MESSAGE);
+      if (error instanceof ApiError) {
+        if (error.status === 423) {
+          setErrorMessage(LOCKED_ERROR_MESSAGE);
+          return;
+        }
+        if (error.status === 401) {
+          setErrorMessage(GENERIC_ERROR_MESSAGE);
+          return;
+        }
+        setErrorMessage(CONNECTION_ERROR_MESSAGE);
         return;
       }
-      setErrorMessage(GENERIC_ERROR_MESSAGE);
+      setErrorMessage(CONNECTION_ERROR_MESSAGE);
     }
   }
 

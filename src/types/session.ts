@@ -1,4 +1,4 @@
-export type Role = "junta_directiva" | "lider";
+export type Role = "gestion_humana" | "lider";
 
 export interface Session {
   token: string;

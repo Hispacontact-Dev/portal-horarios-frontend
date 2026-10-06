@@ -1,14 +1,24 @@
 import { readSessionCookie } from "@/lib/session/cookie";
-import type { ApiErrorResponse } from "@/types/api";
+import type { ApiErrorBody, ApiErrorResponse } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export class ApiError extends Error {
   status: number;
+  body?: ApiErrorBody;
 
-  constructor({ status, message }: ApiErrorResponse) {
+  constructor({ status, message, body }: ApiErrorResponse) {
     super(message);
     this.status = status;
+    this.body = body;
+  }
+}
+
+async function parseErrorBody(response: Response): Promise<ApiErrorBody | undefined> {
+  try {
+    return (await response.json()) as ApiErrorBody;
+  } catch {
+    return undefined;
   }
 }
 
@@ -35,8 +45,8 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   }
 
   if (!response.ok) {
-    // TODO: manejar 403 (prohibido) y 423 (cuenta bloqueada) en los flujos que los necesiten.
-    throw new ApiError({ status: response.status, message: response.statusText });
+    const body = await parseErrorBody(response);
+    throw new ApiError({ status: response.status, message: body?.message ?? response.statusText, body });
   }
 
   return response.json() as Promise<T>;
