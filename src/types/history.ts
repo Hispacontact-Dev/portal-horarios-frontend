@@ -11,7 +11,7 @@ export interface HistoryEntry {
   entity_type: EntityType;
   entity_id: string;
   action: string;
-  actor_id: string;
+  actor_id: string | null;
   actor_name: string;
   changes: HistoryChange[];
   occurred_at: string;

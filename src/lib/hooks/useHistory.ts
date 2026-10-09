@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { listHistory } from "@/lib/api/history";
 import { ApiError } from "@/lib/api/client";
 import { classifyError, type ClassifiedError } from "@/lib/api/errors";
-import type { HistoryEntry } from "@/types/history";
+import type { HistoryEntry, HistoryFilters } from "@/types/history";
 
 type HistoryState =
   | { status: "loading"; entries: HistoryEntry[]; error: null }
@@ -16,13 +16,15 @@ const UNKNOWN_ERROR: ClassifiedError = {
   message: "Error inesperado, intentá de nuevo",
 };
 
-export function useHistory() {
+export function useHistory(filters: HistoryFilters = {}) {
   const [state, setState] = useState<HistoryState>({ status: "loading", entries: [], error: null });
+  const filtersKey = JSON.stringify(filters);
 
   useEffect(() => {
     let cancelled = false;
+    setState((prev) => ({ status: "loading", entries: prev.entries, error: null }));
 
-    listHistory()
+    listHistory(filters)
       .then((entries) => {
         if (!cancelled) setState({ status: "success", entries, error: null });
       })
@@ -35,7 +37,9 @@ export function useHistory() {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // filtersKey (serializado) evita refetch infinito cuando el llamador pasa un objeto literal nuevo en cada render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersKey]);
 
   return state;
 }

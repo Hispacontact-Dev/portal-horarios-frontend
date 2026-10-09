@@ -1,4 +1,4 @@
-import type { Role } from "@/types/session";
+import type { UserRole } from "@/types/user";
 
 export interface LoginRequest {
   email: string;
@@ -7,5 +7,5 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   session_token: string;
-  role: Role;
+  role: UserRole;
 }

@@ -1,5 +1,4 @@
-import type { UserRole } from "@/types/user";
-import type { EntityType } from "@/types/history";
+import type { Role } from "@/types/session";
 
 export const ROUTE_PATHS = {
   login: "/login",
@@ -12,16 +11,7 @@ export const ROUTE_PATHS = {
   horarios: "/horarios",
 } as const;
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  admin: "Administrador",
+export const ROLE_LABELS: Record<Role, string> = {
   gestion_humana: "Gestión Humana",
   lider: "Líder",
-};
-
-export const ENTITY_TYPE_LABELS: Record<EntityType, string> = {
-  employee: "Empleado",
-  area: "Área",
-  status: "Estado",
-  user: "Usuario",
-  login: "Inicio de sesión",
 };

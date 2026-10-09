@@ -9,7 +9,7 @@ import { useEmployees } from "@/lib/hooks/useEmployees";
 import { useAreas } from "@/lib/hooks/useAreas";
 import { useStatuses } from "@/lib/hooks/useStatuses";
 import { useHistory } from "@/lib/hooks/useHistory";
-import { ENTITY_TYPE_LABELS } from "@/lib/utils/constants";
+import { summarize } from "@/lib/utils/history-labels";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
 
@@ -138,9 +138,7 @@ export default function DashboardPage() {
                 style={{ animationDelay: `${0.5 + i * 0.07}s` }}
               >
                 <span className="text-xs tabular-nums text-[var(--neutral-700)]">{formatTime(entry.occurred_at)}</span>
-                <span className="text-[13px] leading-snug">
-                  <b className="font-medium">{entry.actor_name}</b> {entry.action} · {ENTITY_TYPE_LABELS[entry.entity_type]}
-                </span>
+                <span className="text-[13px] leading-snug">{summarize(entry)}</span>
               </div>
             ))}
         </section>

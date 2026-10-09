@@ -16,6 +16,7 @@ import { onBroadcastLogout, writeBroadcastSignal } from "@/lib/session/broadcast
 import { clearSessionCookie, readSessionCookie, writeSessionCookie } from "@/lib/session/cookie";
 import { INACTIVITY_TIMEOUT_MINUTES, NEXT_QUERY_PARAM } from "@/lib/session/constants";
 import { isExpiredByInactivity } from "@/lib/session/expiration";
+import { canonicalRole } from "@/lib/utils/role";
 import type { LoginRequest } from "@/types/auth";
 import type { Session } from "@/types/session";
 
@@ -128,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const now = new Date().toISOString();
       const newSession: Session = {
         token: response.session_token,
-        role: response.role,
+        role: canonicalRole(response.role),
         issuedAt: now,
         lastActivityAt: now,
       };
