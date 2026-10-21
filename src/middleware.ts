@@ -12,9 +12,13 @@ function readSessionFromRequest(request: NextRequest): Session | null {
   }
 }
 
+// Rutas protegidas que no terminan en "/nuevo" — ver specs/005-horarios/plan.md Decisión técnica 6.
+const EDIT_ONLY_PREFIXES = ["/horarios/administrar"];
+
 export function isEditOnlyRoute(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
-  return segments[segments.length - 1] === "nuevo";
+  if (segments[segments.length - 1] === "nuevo") return true;
+  return EDIT_ONLY_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 export function middleware(request: NextRequest) {
