@@ -5,7 +5,10 @@ import { RoleGate } from "@/components/auth/RoleGate";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { SuccessState } from "@/components/ui/SuccessState";
 import { useDefaultScheduleChange } from "@/lib/hooks/useDefaultScheduleChange";
+import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
+import { useDismissibleNotice } from "@/lib/hooks/useDismissibleNotice";
 import type { DefaultScheduleDay, EmployeeDefaultSchedule, TimeRange, Weekday } from "@/types/schedule";
 
 const WEEKDAY_LABELS: Record<Weekday, string> = {
@@ -36,14 +39,18 @@ interface DefaultScheduleEditorProps {
 function DefaultScheduleEditorForm({ employeeId, onSaved }: DefaultScheduleEditorProps) {
   const [days, setDays] = useState<DefaultScheduleDay[]>(BLANK_DEFAULT_DAYS);
   const { state, submit } = useDefaultScheduleChange();
+  const successFlag = useSuccessFlag();
+  const notice = useDismissibleNotice("horarios_admin_default_schedule_notice_dismissed");
 
   const isSubmitting = state.status === "submitting";
 
   function updateDay(weekday: Weekday, patch: Partial<DefaultScheduleDay>) {
+    successFlag.hide();
     setDays((prev) => prev.map((day) => (day.weekday === weekday ? { ...day, ...patch } : day)));
   }
 
   function updateTimeRange(weekday: Weekday, index: number, patch: Partial<TimeRange>) {
+    successFlag.hide();
     setDays((prev) =>
       prev.map((day) =>
         day.weekday === weekday
@@ -54,6 +61,7 @@ function DefaultScheduleEditorForm({ employeeId, onSaved }: DefaultScheduleEdito
   }
 
   function addTimeRange(weekday: Weekday) {
+    successFlag.hide();
     setDays((prev) =>
       prev.map((day) =>
         day.weekday === weekday
@@ -64,6 +72,7 @@ function DefaultScheduleEditorForm({ employeeId, onSaved }: DefaultScheduleEdito
   }
 
   function removeTimeRange(weekday: Weekday, index: number) {
+    successFlag.hide();
     setDays((prev) =>
       prev.map((day) =>
         day.weekday === weekday ? { ...day, time_ranges: day.time_ranges.filter((_, i) => i !== index) } : day,
@@ -73,12 +82,28 @@ function DefaultScheduleEditorForm({ employeeId, onSaved }: DefaultScheduleEdito
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    successFlag.hide();
     const result = await submit({ employee_id: employeeId, days });
-    if (result) onSaved(result);
+    if (result) {
+      successFlag.show();
+      onSaved(result);
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
+      {notice.visible && (
+        <div role="status" className="rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <p>Este formulario parte de una plantilla nueva, no del horario real vigente de esta persona.</p>
+          <div className="mt-2">
+            <Button type="button" variant="secondary" onClick={notice.dismiss}>
+              Entendido
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {days.map((day) => (
         <div key={day.weekday} className="flex flex-col gap-2 border-b pb-3">
           <div className="flex items-center gap-3">
@@ -136,12 +161,15 @@ function DefaultScheduleEditorForm({ employeeId, onSaved }: DefaultScheduleEdito
         </div>
       ))}
 
+      {successFlag.visible && <SuccessState message="Cambios guardados" />}
+
       {state.status === "error" && <ErrorState message={state.error.message} />}
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Guardando..." : "Guardar horario habitual"}
       </Button>
     </form>
+    </div>
   );
 }
 

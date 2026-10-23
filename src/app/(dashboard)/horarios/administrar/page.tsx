@@ -56,7 +56,7 @@ function AdministrarHorariosContent() {
         <>
           <section className="flex flex-col gap-2">
             <h2 className="text-sm font-semibold">Horario habitual</h2>
-            <DefaultScheduleEditor employeeId={employeeId} onSaved={() => undefined} />
+            <DefaultScheduleEditor employeeId={employeeId} onSaved={() => retryWeek()} />
           </section>
 
           <section className="flex flex-col gap-2">
@@ -81,7 +81,7 @@ function AdministrarHorariosContent() {
                   </select>
                 </label>
                 {selectedDay && (
-                  <DayStatusEditor employeeId={employeeId} day={selectedDay} onSaved={() => undefined} />
+                  <DayStatusEditor employeeId={employeeId} day={selectedDay} onSaved={() => retryWeek()} />
                 )}
               </>
             )}
@@ -89,7 +89,7 @@ function AdministrarHorariosContent() {
 
           <section className="flex flex-col gap-2">
             <h2 className="text-sm font-semibold">Estado especial por rango de fechas</h2>
-            <DateRangeStatusEditor employeeId={employeeId} onSaved={() => undefined} />
+            <DateRangeStatusEditor employeeId={employeeId} onSaved={() => retryWeek()} />
           </section>
         </>
       )}

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { SuccessState } from "@/components/ui/SuccessState";
 import { useStatuses } from "@/lib/hooks/useStatuses";
 import { useDateRangeStatusChange } from "@/lib/hooks/useDateRangeStatusChange";
+import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
 
 interface DateRangeStatusEditorProps {
   employeeId: string;
@@ -16,6 +18,7 @@ interface DateRangeStatusEditorProps {
 function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEditorProps) {
   const { statuses } = useStatuses();
   const { state, submit, overlappingDates } = useDateRangeStatusChange();
+  const successFlag = useSuccessFlag();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [statusId, setStatusId] = useState("");
@@ -25,25 +28,44 @@ function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEdito
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    successFlag.hide();
     const result = await submit({
       employee_id: employeeId,
       start_date: startDate,
       end_date: endDate,
       status_id: statusId,
     });
-    if (result) onSaved();
+    if (result) {
+      successFlag.show();
+      onSaved();
+    }
+  }
+
+  function handleStartDateChange(event: ChangeEvent<HTMLInputElement>) {
+    successFlag.hide();
+    setStartDate(event.target.value);
+  }
+
+  function handleEndDateChange(event: ChangeEvent<HTMLInputElement>) {
+    successFlag.hide();
+    setEndDate(event.target.value);
+  }
+
+  function handleStatusChange(event: ChangeEvent<HTMLSelectElement>) {
+    successFlag.hide();
+    setStatusId(event.target.value);
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label className="flex flex-col text-sm text-gray-700">
         Desde
-        <Input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} required />
+        <Input type="date" value={startDate} onChange={handleStartDateChange} required />
       </label>
 
       <label className="flex flex-col text-sm text-gray-700">
         Hasta
-        <Input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} required />
+        <Input type="date" value={endDate} onChange={handleEndDateChange} required />
       </label>
 
       <label className="flex flex-col text-sm text-gray-700">
@@ -51,7 +73,7 @@ function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEdito
         <select
           className="rounded border px-3 py-2 text-sm"
           value={statusId}
-          onChange={(event) => setStatusId(event.target.value)}
+          onChange={handleStatusChange}
           required
         >
           <option value="" disabled>
@@ -64,6 +86,8 @@ function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEdito
           ))}
         </select>
       </label>
+
+      {successFlag.visible && <SuccessState message="Cambios guardados" />}
 
       {state.status === "error" && (
         <ErrorState
