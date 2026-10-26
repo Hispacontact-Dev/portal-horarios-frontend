@@ -1,7 +1,5 @@
 import type { EmployeePosition } from "@/types/employee";
 
-// TODO: el backend todavía no expone endpoints de Horarios — ver specs/005-horarios/plan.md sección 7.
-
 export type Weekday = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
 
 export interface TimeRange {

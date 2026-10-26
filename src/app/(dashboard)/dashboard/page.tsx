@@ -4,7 +4,7 @@ import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Corners } from "@/components/dashboard/Corners";
-import { TurnosHoy, type Turno } from "@/components/dashboard/TurnosHoy";
+import { TurnosHoy } from "@/components/dashboard/TurnosHoy";
 import { useEmployees } from "@/lib/hooks/useEmployees";
 import { useAreas } from "@/lib/hooks/useAreas";
 import { useStatuses } from "@/lib/hooks/useStatuses";
@@ -12,9 +12,6 @@ import { useHistory } from "@/lib/hooks/useHistory";
 import { summarize } from "@/lib/utils/history-labels";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
-
-// Sin backend de Horarios todavía (AGENTS.md) — ver placeholder dentro de TurnosHoy.
-const TURNOS: Turno[] = [];
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: false });
@@ -114,7 +111,7 @@ export default function DashboardPage() {
       )}
 
       <div className="grid flex-1 gap-[22px] xl:grid-cols-[minmax(0,1fr)_320px]">
-        <TurnosHoy turnos={TURNOS} />
+        <TurnosHoy />
 
         <section className="panel anim-up flex flex-col gap-1.5 px-5 py-[18px]" style={{ animationDelay: ".4s" }}>
           <Corners />

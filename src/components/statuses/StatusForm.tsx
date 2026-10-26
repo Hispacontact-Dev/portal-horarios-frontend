@@ -4,6 +4,8 @@ import { type FormEvent } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { SuccessState } from "@/components/ui/SuccessState";
+import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
 import { useStatusForm, type StatusFormMode } from "@/lib/hooks/useStatusForm";
 import type { Status } from "@/types/status";
 
@@ -14,16 +16,29 @@ interface StatusFormProps {
 }
 
 export function StatusForm({ mode, status, onSuccess }: StatusFormProps) {
+  const successFlag = useSuccessFlag();
+
+  function handleSuccess(result: Status) {
+    successFlag.show();
+    onSuccess(result);
+  }
+
   const { values, isSubmitting, error, setField, submit } = useStatusForm({
     mode,
     statusId: status?.id,
     initialStatus: status,
-    onSuccess,
+    onSuccess: handleSuccess,
   });
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    successFlag.hide();
     submit(values);
+  }
+
+  function handleNameChange(value: string) {
+    successFlag.hide();
+    setField("name", value);
   }
 
   return (
@@ -32,11 +47,12 @@ export function StatusForm({ mode, status, onSuccess }: StatusFormProps) {
         name="name"
         placeholder="Nombre del estado"
         value={values.name}
-        onChange={(event) => setField("name", event.target.value)}
+        onChange={(event) => handleNameChange(event.target.value)}
         required
         maxLength={100}
       />
 
+      {successFlag.visible && <SuccessState message="Cambios guardados" />}
       {error && <ErrorState message={error.message} />}
 
       <Button type="submit" disabled={isSubmitting}>

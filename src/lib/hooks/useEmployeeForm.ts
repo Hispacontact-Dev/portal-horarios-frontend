@@ -1,28 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { createEmployee, updateEmployee } from "@/lib/api/employees";
+import { updateEmployee } from "@/lib/api/employees";
 import { ApiError } from "@/lib/api/client";
 import { classifyError, type ClassifiedError } from "@/lib/api/errors";
 import type { Employee, EmployeePosition } from "@/types/employee";
-
-export type EmployeeFormMode = "create" | "edit";
 
 export interface EmployeeFormValues {
   full_name: string;
   position: EmployeePosition;
   area_id: string;
-  // Se precarga y se muestra en ambos modos (RF-3), pero en modo "edit" no se
-  // envía en el PATCH (EmployeeUpdate no tiene status_id). El cambio real de
-  // Estado es la tarea 21 (updateEmployeeStatus); por eso el <select>
-  // correspondiente queda deshabilitado en EmployeeForm cuando mode === "edit".
+  // Se precarga y se muestra, pero no se envía en el PATCH (EmployeeUpdate no tiene
+  // status_id). El cambio real de Estado es aparte (updateEmployeeStatus); por eso el
+  // <select> correspondiente queda deshabilitado en EmployeeForm.
   status_id: string;
 }
 
 export interface UseEmployeeFormOptions {
-  mode: EmployeeFormMode;
-  employeeId?: string;
-  initialEmployee?: Employee;
+  employeeId: string;
+  initialEmployee: Employee;
   onSuccess?: (employee: Employee) => void;
 }
 
@@ -32,20 +28,12 @@ interface EmployeeFormState {
   error: ClassifiedError | null;
 }
 
-const EMPTY_VALUES: EmployeeFormValues = {
-  full_name: "",
-  position: "lider",
-  area_id: "",
-  status_id: "",
-};
-
 const UNKNOWN_ERROR: ClassifiedError = {
   kind: "unknown",
   message: "Error inesperado, intentá de nuevo",
 };
 
-function valuesFromEmployee(employee?: Employee): EmployeeFormValues {
-  if (!employee) return EMPTY_VALUES;
+function valuesFromEmployee(employee: Employee): EmployeeFormValues {
   return {
     full_name: employee.full_name,
     position: employee.position,
@@ -54,12 +42,7 @@ function valuesFromEmployee(employee?: Employee): EmployeeFormValues {
   };
 }
 
-export function useEmployeeForm({
-  mode,
-  employeeId,
-  initialEmployee,
-  onSuccess,
-}: UseEmployeeFormOptions) {
+export function useEmployeeForm({ employeeId, initialEmployee, onSuccess }: UseEmployeeFormOptions) {
   const [state, setState] = useState<EmployeeFormState>(() => ({
     values: valuesFromEmployee(initialEmployee),
     isSubmitting: false,
@@ -77,19 +60,11 @@ export function useEmployeeForm({
     setState((prev) => ({ ...prev, values, isSubmitting: true, error: null }));
 
     try {
-      const result =
-        mode === "create"
-          ? await createEmployee({
-              full_name: values.full_name,
-              position: values.position,
-              area_id: values.area_id,
-              status_id: values.status_id,
-            })
-          : await updateEmployee(employeeId as string, {
-              full_name: values.full_name,
-              position: values.position,
-              area_id: values.area_id,
-            });
+      const result = await updateEmployee(employeeId, {
+        full_name: values.full_name,
+        position: values.position,
+        area_id: values.area_id,
+      });
 
       setState((prev) => ({ ...prev, isSubmitting: false, error: null }));
       onSuccess?.(result);

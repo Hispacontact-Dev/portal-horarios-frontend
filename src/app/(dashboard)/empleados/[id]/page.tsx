@@ -113,7 +113,7 @@ export default function EmpleadoDetallePage({ params }: EmpleadoDetallePageProps
 
               <div className="flex flex-col gap-2">
                 <h2 className="text-sm font-semibold">Editar empleado</h2>
-                <EmployeeForm mode="edit" employee={employee} onSuccess={handleUpdated} />
+                <EmployeeForm employee={employee} onSuccess={handleUpdated} />
               </div>
             </div>
           </RoleGate>

@@ -10,9 +10,7 @@ const NAV = [
   { href: ROUTE_PATHS.dashboard, label: "Dashboard" },
   { href: ROUTE_PATHS.empleados, label: "Empleados" },
   { href: ROUTE_PATHS.horarios, label: "Horarios" },
-  { href: ROUTE_PATHS.areas, label: "Áreas" },
-  { href: ROUTE_PATHS.estados, label: "Estados" },
-  { href: ROUTE_PATHS.usuarios, label: "Usuarios" },
+  { href: ROUTE_PATHS.configuracion, label: "Configuración" },
   { href: ROUTE_PATHS.auditoria, label: "Auditoría" },
 ];
 

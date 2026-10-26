@@ -9,6 +9,7 @@ export const ROUTE_PATHS = {
   usuarios: "/usuarios",
   auditoria: "/auditoria",
   horarios: "/horarios",
+  configuracion: "/configuracion",
 } as const;
 
 export const ROLE_LABELS: Record<Role, string> = {

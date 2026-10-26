@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { useEmployeeForm, type EmployeeFormMode } from "@/lib/hooks/useEmployeeForm";
+import { useEmployeeForm } from "@/lib/hooks/useEmployeeForm";
 import { useAreas } from "@/lib/hooks/useAreas";
 import { useStatuses } from "@/lib/hooks/useStatuses";
 import { selectableOptions } from "@/lib/utils/catalog";
@@ -17,15 +17,13 @@ const POSITION_LABELS: Record<EmployeePosition, string> = {
 };
 
 interface EmployeeFormProps {
-  mode: EmployeeFormMode;
-  employee?: Employee;
+  employee: Employee;
   onSuccess: (employee: Employee) => void;
 }
 
-export function EmployeeForm({ mode, employee, onSuccess }: EmployeeFormProps) {
+export function EmployeeForm({ employee, onSuccess }: EmployeeFormProps) {
   const { values, isSubmitting, error, setField, submit } = useEmployeeForm({
-    mode,
-    employeeId: employee?.id,
+    employeeId: employee.id,
     initialEmployee: employee,
     onSuccess,
   });
@@ -37,8 +35,8 @@ export function EmployeeForm({ mode, employee, onSuccess }: EmployeeFormProps) {
   const catalogsError =
     areasStatus === "error" ? areasError : statusesStatus === "error" ? statusesError : null;
 
-  const areaOptions = selectableOptions(areas, employee?.area_id);
-  const statusOptions = selectableOptions(statuses, employee?.status_id);
+  const areaOptions = selectableOptions(areas, employee.area_id);
+  const statusOptions = selectableOptions(statuses, employee.status_id);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,13 +80,7 @@ export function EmployeeForm({ mode, employee, onSuccess }: EmployeeFormProps) {
         ))}
       </Select>
 
-      <Select
-        name="status_id"
-        value={values.status_id}
-        onChange={(event) => setField("status_id", event.target.value)}
-        disabled={catalogsLoading || mode === "edit"}
-        required
-      >
+      <Select name="status_id" value={values.status_id} onChange={() => {}} disabled required>
         <option value="" disabled>
           Seleccioná un estado
         </option>
@@ -98,12 +90,10 @@ export function EmployeeForm({ mode, employee, onSuccess }: EmployeeFormProps) {
           </option>
         ))}
       </Select>
-      {mode === "edit" && (
-        <p className="text-xs text-gray-500">
-          El estado se precarga con el valor vigente. Su cambio se gestiona por fuera de este
-          formulario.
-        </p>
-      )}
+      <p className="text-xs text-gray-500">
+        El estado se precarga con el valor vigente. Su cambio se gestiona por fuera de este
+        formulario.
+      </p>
 
       {catalogsError && <ErrorState message={catalogsError.message} />}
       {error && <ErrorState message={error.message} />}

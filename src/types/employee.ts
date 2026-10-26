@@ -17,13 +17,6 @@ export interface Employee {
   status_updated_by: string;
 }
 
-export interface EmployeeCreate {
-  full_name: string;
-  position: EmployeePosition;
-  area_id: string;
-  status_id: string;
-}
-
 export interface EmployeeUpdate {
   full_name?: string;
   position?: EmployeePosition;

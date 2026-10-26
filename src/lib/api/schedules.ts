@@ -1,5 +1,3 @@
-// TODO: el backend todavía no expone endpoints de Horarios — ver specs/005-horarios/plan.md sección 7.
-
 import { apiFetch } from "@/lib/api/client";
 import type {
   WeekScheduleResponse,
