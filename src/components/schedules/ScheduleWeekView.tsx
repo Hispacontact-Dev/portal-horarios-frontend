@@ -1,9 +1,12 @@
 import { Badge } from "@/components/ui/Badge";
 import { Table } from "@/components/ui/Table";
+import { nowAsDecimalHour, rangeRuntimeStatus, rangeStatusLabel, statusVisualProps } from "@/lib/utils/scheduleStatus";
 import type { EmployeeWeekSchedule, ScheduleDayEntry } from "@/types/schedule";
 
 interface ScheduleWeekViewProps {
   employees: EmployeeWeekSchedule[];
+  /** Fecha "YYYY-MM-DD" del día de hoy (server_today), si la semana mostrada lo incluye. */
+  today?: string;
 }
 
 function formatDayHeader(date: string): string {
@@ -14,31 +17,35 @@ function formatDayHeader(date: string): string {
   });
 }
 
-function DayCell({ day }: { day: ScheduleDayEntry }) {
-  if (day.time_ranges.length > 0) {
+function DayCell({ day, isToday }: { day: ScheduleDayEntry; isToday: boolean }) {
+  if (day.time_ranges.length === 0) {
+    const visual = statusVisualProps("sin_horario");
     return (
       <div className="flex flex-col gap-1">
-        <Badge className="bg-green-100 text-green-800">
-          {day.modality === "virtual" ? "Virtual/Casa" : "Presencial"}
+        <Badge className={visual.className} style={visual.style}>
+          {day.status_name}
         </Badge>
-        {day.time_ranges.map((range, index) => (
-          <span key={index} className="text-xs text-gray-600">
-            {range.start}–{range.end}
-          </span>
-        ))}
+        {day.observation && <span className="text-xs text-gray-500">{day.observation}</span>}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-1">
-      <Badge className="bg-gray-100 text-gray-700">{day.status_name}</Badge>
-      {day.observation && <span className="text-xs text-gray-500">{day.observation}</span>}
+      {day.time_ranges.map((range, index) => {
+        const status = isToday ? rangeRuntimeStatus(range, nowAsDecimalHour()) : "programado";
+        const visual = statusVisualProps(status);
+        return (
+          <Badge key={index} className={visual.className} style={visual.style}>
+            {range.start}–{range.end} · {rangeStatusLabel(status)}
+          </Badge>
+        );
+      })}
     </div>
   );
 }
 
-export function ScheduleWeekView({ employees }: ScheduleWeekViewProps) {
+export function ScheduleWeekView({ employees, today }: ScheduleWeekViewProps) {
   const weekdays = employees[0]?.days ?? [];
 
   return (
@@ -62,7 +69,7 @@ export function ScheduleWeekView({ employees }: ScheduleWeekViewProps) {
             </td>
             {employee.days.map((day) => (
               <td key={day.date} className="px-3 py-2 align-top">
-                <DayCell day={day} />
+                <DayCell day={day} isToday={day.date === today} />
               </td>
             ))}
           </tr>

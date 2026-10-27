@@ -10,6 +10,7 @@ import type { ScheduleDayEntry, WeekScheduleResponse } from "@/types/schedule";
 export interface TodayScheduleEntry {
   employee_id: string;
   full_name: string;
+  area_id: string;
   area_name: string;
   day: ScheduleDayEntry;
 }
@@ -21,7 +22,15 @@ function deriveTodayEntries(data: WeekScheduleResponse): TodayScheduleEntry[] {
     .flatMap((employee) => {
       const day = employee.days.find((d) => d.date === today);
       return day
-        ? [{ employee_id: employee.employee_id, full_name: employee.full_name, area_name: employee.area_name, day }]
+        ? [
+            {
+              employee_id: employee.employee_id,
+              full_name: employee.full_name,
+              area_id: employee.area_id,
+              area_name: employee.area_name,
+              day,
+            },
+          ]
         : [];
     });
 }

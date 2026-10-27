@@ -51,7 +51,9 @@ export default function HorariosPage() {
           {employees.length > 0 && filteredEmployees.length === 0 && (
             <EmptyState message="Ningún resultado coincide con los filtros aplicados." />
           )}
-          {filteredEmployees.length > 0 && <ScheduleWeekView employees={filteredEmployees} />}
+          {filteredEmployees.length > 0 && (
+            <ScheduleWeekView employees={filteredEmployees} today={offset === 0 ? state.data.server_today : undefined} />
+          )}
         </>
       )}
     </div>
