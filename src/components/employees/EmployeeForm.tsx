@@ -10,13 +10,8 @@ import { useAreas } from "@/lib/hooks/useAreas";
 import { useStatuses } from "@/lib/hooks/useStatuses";
 import { selectableOptions } from "@/lib/utils/catalog";
 import { RenameConfirmModal } from "@/components/employees/RenameConfirmModal";
+import { POSITION_LABELS } from "@/lib/utils/constants";
 import type { Employee, EmployeePosition } from "@/types/employee";
-
-const POSITION_LABELS: Record<EmployeePosition, string> = {
-  recursos_humanos: "Recursos Humanos",
-  lider: "Líder",
-  practicante: "Practicante",
-};
 
 interface EmployeeFormProps {
   mode: EmployeeFormMode;

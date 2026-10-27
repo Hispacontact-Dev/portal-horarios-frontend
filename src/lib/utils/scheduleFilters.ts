@@ -26,9 +26,7 @@ export function applyScheduleFilters(
     .map((employee) => ({
       ...employee,
       days: employee.days.filter(
-        (day) =>
-          (filters.modality === null || day.modality === filters.modality) &&
-          (filters.status_id === null || day.status_id === filters.status_id),
+        (day) => filters.status_id === null || day.status_id === filters.status_id,
       ),
     }));
 }

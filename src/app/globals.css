@@ -125,3 +125,32 @@ body {
   position: relative;
   border: 1px solid var(--divider);
 }
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-slide {
+  animation: slideIn 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.input-ui {
+  min-height: 38px;
+  border: 1px solid var(--divider);
+  background: #e9e9ea;
+  padding: 0 10px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  caret-color: var(--accent);
+}
+.input-ui:hover {
+  border-color: rgba(29, 31, 32, 0.45);
+}
+.input-ui:focus-visible {
+  border-color: var(--accent);
+}

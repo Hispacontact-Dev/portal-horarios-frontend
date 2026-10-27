@@ -32,8 +32,13 @@ export function useEmployees() {
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        const classified = err instanceof ApiError ? classifyError(err) : null;
-        setState({ status: "error", employees: [], error: classified ?? UNKNOWN_ERROR });
+        if (err instanceof ApiError) {
+          const classified = classifyError(err);
+          if (classified === null) return; // 401 ya manejado globalmente (redirige a login)
+          setState({ status: "error", employees: [], error: classified });
+          return;
+        }
+        setState({ status: "error", employees: [], error: UNKNOWN_ERROR });
       });
 
     return () => {

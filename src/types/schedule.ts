@@ -75,6 +75,5 @@ export interface DefaultScheduleChangeInput {
 export interface ScheduleFilters {
   employee_id: string | null;
   area_id: string | null;
-  modality: "presencial" | "virtual" | null;
   status_id: string | null;
 }

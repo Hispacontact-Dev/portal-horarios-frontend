@@ -4,7 +4,7 @@ import { useState } from "react";
 import { reconcileFilters } from "@/lib/utils/scheduleFilters";
 import type { EmployeeWeekSchedule, ScheduleFilters } from "@/types/schedule";
 
-const EMPTY_FILTERS: ScheduleFilters = { employee_id: null, area_id: null, modality: null, status_id: null };
+const EMPTY_FILTERS: ScheduleFilters = { employee_id: null, area_id: null, status_id: null };
 
 export function useScheduleFilters(employees: EmployeeWeekSchedule[]) {
   const [filters, setFilters] = useState<ScheduleFilters>(EMPTY_FILTERS);

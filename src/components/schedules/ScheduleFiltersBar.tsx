@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useAreas } from "@/lib/hooks/useAreas";
+import { useStatuses } from "@/lib/hooks/useStatuses";
 import { Button } from "@/components/ui/Button";
 import type { EmployeeWeekSchedule, ScheduleFilters } from "@/types/schedule";
 
@@ -12,17 +13,11 @@ interface ScheduleFiltersBarProps {
 }
 
 export function ScheduleFiltersBar({ employees, filters, onChange, onClear }: ScheduleFiltersBarProps) {
-  const areaOptions = useMemo(() => {
-    const seen = new Map<string, string>();
-    employees.forEach((employee) => seen.set(employee.area_id, employee.area_name));
-    return Array.from(seen, ([id, name]) => ({ id, name }));
-  }, [employees]);
+  const { areas } = useAreas();
+  const { statuses } = useStatuses();
 
-  const statusOptions = useMemo(() => {
-    const seen = new Map<string, string>();
-    employees.forEach((employee) => employee.days.forEach((day) => seen.set(day.status_id, day.status_name)));
-    return Array.from(seen, ([id, name]) => ({ id, name }));
-  }, [employees]);
+  const areaOptions = areas.filter((area) => area.is_enabled);
+  const statusOptions = statuses.filter((status) => status.is_enabled);
 
   return (
     <div className="flex flex-wrap items-end gap-3">
@@ -55,19 +50,6 @@ export function ScheduleFiltersBar({ employees, filters, onChange, onClear }: Sc
               {area.name}
             </option>
           ))}
-        </select>
-      </label>
-
-      <label className="flex flex-col text-sm text-gray-700">
-        Modalidad
-        <select
-          className="rounded border px-3 py-2 text-sm"
-          value={filters.modality ?? ""}
-          onChange={(event) => onChange("modality", (event.target.value || null) as ScheduleFilters["modality"])}
-        >
-          <option value="">Todas</option>
-          <option value="presencial">Presencial</option>
-          <option value="virtual">Virtual/Casa</option>
         </select>
       </label>
 

@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
+import { RoleGate } from "@/components/auth/RoleGate";
 import { nowAsDecimalHour, rangeRuntimeStatus, rangeStatusLabel, statusVisualProps } from "@/lib/utils/scheduleStatus";
 import type { EmployeeWeekSchedule, ScheduleDayEntry } from "@/types/schedule";
 
@@ -7,6 +9,8 @@ interface ScheduleWeekViewProps {
   employees: EmployeeWeekSchedule[];
   /** Fecha "YYYY-MM-DD" del día de hoy (server_today), si la semana mostrada lo incluye. */
   today?: string;
+  /** Si se provee, agrega una columna "Administrar" con un botón por empleado. */
+  onManage?: (employeeId: string) => void;
 }
 
 function formatDayHeader(date: string): string {
@@ -45,7 +49,7 @@ function DayCell({ day, isToday }: { day: ScheduleDayEntry; isToday: boolean }) 
   );
 }
 
-export function ScheduleWeekView({ employees, today }: ScheduleWeekViewProps) {
+export function ScheduleWeekView({ employees, today, onManage }: ScheduleWeekViewProps) {
   const weekdays = employees[0]?.days ?? [];
 
   return (
@@ -58,6 +62,7 @@ export function ScheduleWeekView({ employees, today }: ScheduleWeekViewProps) {
               {formatDayHeader(day.date)}
             </th>
           ))}
+          {onManage && <th className="px-3 py-2 font-medium">Administrar</th>}
         </tr>
       </thead>
       <tbody>
@@ -72,6 +77,15 @@ export function ScheduleWeekView({ employees, today }: ScheduleWeekViewProps) {
                 <DayCell day={day} isToday={day.date === today} />
               </td>
             ))}
+            {onManage && (
+              <td className="px-3 py-2 align-top">
+                <RoleGate>
+                  <Button type="button" variant="secondary" onClick={() => onManage(employee.employee_id)}>
+                    Administrar
+                  </Button>
+                </RoleGate>
+              </td>
+            )}
           </tr>
         ))}
       </tbody>

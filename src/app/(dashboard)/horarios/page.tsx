@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { useScheduleWeekNavigation } from "@/lib/hooks/useScheduleWeekNavigation";
@@ -9,6 +10,7 @@ import { applyScheduleFilters } from "@/lib/utils/scheduleFilters";
 import { WeekNavigator } from "@/components/schedules/WeekNavigator";
 import { ScheduleFiltersBar } from "@/components/schedules/ScheduleFiltersBar";
 import { ScheduleWeekView } from "@/components/schedules/ScheduleWeekView";
+import { EmployeeScheduleModal } from "@/components/schedules/EmployeeScheduleModal";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -16,10 +18,12 @@ import { EmptyState } from "@/components/ui/EmptyState";
 export default function HorariosPage() {
   const { offset, goPrev, goNext, canGoPrev, canGoNext } = useScheduleWeekNavigation();
   const { state, retry } = useWeekSchedule(offset);
+  const [managedEmployeeId, setManagedEmployeeId] = useState<string | null>(null);
 
   const employees = state.status === "success" || state.status === "empty" ? state.data.employees : [];
   const { filters, setFilter, clearAll } = useScheduleFilters(employees);
   const filteredEmployees = applyScheduleFilters(employees, filters);
+  const managedEmployee = employees.find((employee) => employee.employee_id === managedEmployeeId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -52,10 +56,21 @@ export default function HorariosPage() {
             <EmptyState message="Ningún resultado coincide con los filtros aplicados." />
           )}
           {filteredEmployees.length > 0 && (
-            <ScheduleWeekView employees={filteredEmployees} today={offset === 0 ? state.data.server_today : undefined} />
+            <ScheduleWeekView
+              employees={filteredEmployees}
+              today={offset === 0 ? state.data.server_today : undefined}
+              onManage={setManagedEmployeeId}
+            />
           )}
         </>
       )}
+
+      <EmployeeScheduleModal
+        isOpen={managedEmployeeId !== null}
+        employee={managedEmployee}
+        onClose={() => setManagedEmployeeId(null)}
+        onSaved={retry}
+      />
     </div>
   );
 }
