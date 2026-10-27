@@ -1,4 +1,4 @@
-export type EmployeePosition = "recursos_humanos" | "lider";
+export type EmployeePosition = "recursos_humanos" | "lider" | "practicante";
 
 export interface Employee {
   id: string;
@@ -15,6 +15,13 @@ export interface Employee {
   updated_by: string;
   status_updated_at: string;
   status_updated_by: string;
+}
+
+export interface EmployeeCreate {
+  full_name: string;
+  position: EmployeePosition;
+  area_id: string;
+  status_id: string;
 }
 
 export interface EmployeeUpdate {

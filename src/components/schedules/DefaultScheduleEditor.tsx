@@ -11,7 +11,7 @@ import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
 import { useDismissibleNotice } from "@/lib/hooks/useDismissibleNotice";
 import type { DefaultScheduleDay, EmployeeDefaultSchedule, TimeRange, Weekday } from "@/types/schedule";
 
-const WEEKDAY_LABELS: Record<Weekday, string> = {
+export const WEEKDAY_LABELS: Record<Weekday, string> = {
   monday: "Lunes",
   tuesday: "Martes",
   wednesday: "Miércoles",

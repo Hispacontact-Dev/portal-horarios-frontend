@@ -1,6 +1,10 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { Employee, EmployeePosition } from "@/types/employee";
 import { Table } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { EmployeeStatusBadge } from "@/components/employees/EmployeeStatusBadge";
 
 interface EmployeeTableProps {
@@ -10,9 +14,12 @@ interface EmployeeTableProps {
 const POSITION_LABELS: Record<EmployeePosition, string> = {
   recursos_humanos: "Recursos Humanos",
   lider: "Líder",
+  practicante: "Practicante",
 };
 
 export function EmployeeTable({ employees }: EmployeeTableProps) {
+  const router = useRouter();
+
   return (
     <Table>
       <thead>
@@ -22,6 +29,7 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
           <th className="px-3 py-2 font-medium">Área</th>
           <th className="px-3 py-2 font-medium">Estado</th>
           <th className="px-3 py-2 font-medium">Activo</th>
+          <th className="px-3 py-2 font-medium">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -41,6 +49,11 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
               >
                 {employee.is_active ? "Activo" : "Inactivo"}
               </Badge>
+            </td>
+            <td className="px-3 py-2">
+              <Button type="button" variant="secondary" onClick={() => router.push(`/empleados/${employee.id}`)}>
+                Ver
+              </Button>
             </td>
           </tr>
         ))}

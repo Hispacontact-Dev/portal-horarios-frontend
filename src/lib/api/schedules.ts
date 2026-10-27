@@ -12,6 +12,13 @@ export async function getWeekSchedule(weekOffset: number, signal?: AbortSignal):
   return apiFetch<WeekScheduleResponse>(`/schedules/week?offset=${weekOffset}`, { signal });
 }
 
+export async function getDefaultSchedule(
+  employeeId: string,
+  signal?: AbortSignal,
+): Promise<EmployeeDefaultSchedule> {
+  return apiFetch<EmployeeDefaultSchedule>(`/schedules/default/${employeeId}`, { signal });
+}
+
 export async function setDayStatus(input: DayStatusChangeInput): Promise<ScheduleDayEntry> {
   return apiFetch<ScheduleDayEntry>("/schedules/day-status", {
     method: "PATCH",

@@ -1,9 +1,11 @@
 "use client";
 
 import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEmployees } from "@/lib/hooks/useEmployees";
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
+import { RoleGate } from "@/components/auth/RoleGate";
+import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -34,9 +36,18 @@ function EmpleadosList() {
 }
 
 export default function EmpleadosPage() {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold">Empleados</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold">Empleados</h1>
+        <RoleGate>
+          <Button type="button" onClick={() => router.push("/empleados/nuevo")}>
+            Nuevo empleado
+          </Button>
+        </RoleGate>
+      </div>
       <Suspense fallback={<Spinner />}>
         <EmpleadosList />
       </Suspense>
