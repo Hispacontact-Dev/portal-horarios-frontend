@@ -6,6 +6,8 @@ import type {
   DefaultScheduleChangeInput,
   EmployeeDefaultSchedule,
   ScheduleDayEntry,
+  BulkAssignmentInput,
+  BulkAssignmentResult,
 } from "@/types/schedule";
 
 export async function getWeekSchedule(weekOffset: number, signal?: AbortSignal): Promise<WeekScheduleResponse> {
@@ -47,6 +49,13 @@ export async function setDateRangeStatus(input: DateRangeStatusChangeInput): Pro
 export async function updateDefaultSchedule(input: DefaultScheduleChangeInput): Promise<EmployeeDefaultSchedule> {
   return apiFetch<EmployeeDefaultSchedule>(`/schedules/default/${input.employee_id}`, {
     method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function applyBulkAssignment(input: BulkAssignmentInput): Promise<BulkAssignmentResult> {
+  return apiFetch<BulkAssignmentResult>("/schedules/bulk", {
+    method: "POST",
     body: JSON.stringify(input),
   });
 }

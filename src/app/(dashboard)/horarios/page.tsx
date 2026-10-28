@@ -1,76 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { RoleGate } from "@/components/auth/RoleGate";
-import { useScheduleWeekNavigation } from "@/lib/hooks/useScheduleWeekNavigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useWeekSchedule } from "@/lib/hooks/useWeekSchedule";
-import { useScheduleFilters } from "@/lib/hooks/useScheduleFilters";
-import { applyScheduleFilters } from "@/lib/utils/scheduleFilters";
-import { WeekNavigator } from "@/components/schedules/WeekNavigator";
-import { ScheduleFiltersBar } from "@/components/schedules/ScheduleFiltersBar";
-import { ScheduleWeekView } from "@/components/schedules/ScheduleWeekView";
-import { EmployeeScheduleModal } from "@/components/schedules/EmployeeScheduleModal";
+import { HorariosView } from "@/components/schedules/HorariosView";
 import { Spinner } from "@/components/ui/Spinner";
-import { ErrorState } from "@/components/ui/ErrorState";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { addWeeks, mondayOf, parseISODate, toISODate } from "@/lib/utils/week";
+import { ROUTE_PATHS } from "@/lib/utils/constants";
 
-export default function HorariosPage() {
-  const { offset, goPrev, goNext, canGoPrev, canGoNext } = useScheduleWeekNavigation();
+const MIN_OFFSET = -8;
+const MAX_OFFSET = 8;
+
+function offsetFromParam(semana: string | null): number {
+  if (!semana) return 0;
+  const thisMonday = mondayOf(new Date());
+  const targetMonday = mondayOf(parseISODate(semana));
+  const diffWeeks = Math.round((targetMonday.getTime() - thisMonday.getTime()) / (7 * 86400000));
+  return Math.min(MAX_OFFSET, Math.max(MIN_OFFSET, diffWeeks));
+}
+
+function HorariosPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const offset = offsetFromParam(searchParams.get("semana"));
+
   const { state, retry } = useWeekSchedule(offset);
-  const [managedEmployeeId, setManagedEmployeeId] = useState<string | null>(null);
 
-  const employees = state.status === "success" || state.status === "empty" ? state.data.employees : [];
-  const { filters, setFilter, clearAll } = useScheduleFilters(employees);
-  const filteredEmployees = applyScheduleFilters(employees, filters);
-  const managedEmployee = employees.find((employee) => employee.employee_id === managedEmployeeId);
+  function goToOffset(nextOffset: number) {
+    const clamped = Math.min(MAX_OFFSET, Math.max(MIN_OFFSET, nextOffset));
+    const monday = addWeeks(mondayOf(new Date()), clamped);
+    router.push(`${ROUTE_PATHS.horarios}?semana=${toISODate(monday)}`);
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Horarios</h1>
-        <RoleGate>
-          <Link href="/horarios/administrar" className="text-sm font-medium text-blue-700 hover:underline">
-            Administrar horarios
-          </Link>
-        </RoleGate>
-      </div>
+    <HorariosView
+      state={state}
+      retry={retry}
+      offset={offset}
+      canGoPrev={offset > MIN_OFFSET}
+      canGoNext={offset < MAX_OFFSET}
+      onPrev={() => goToOffset(offset - 1)}
+      onNext={() => goToOffset(offset + 1)}
+      onToday={() => router.push(ROUTE_PATHS.horarios)}
+    />
+  );
+}
 
-      {state.status === "loading" && <Spinner />}
-      {state.status === "error" && <ErrorState message={state.error.message} onRetry={retry} />}
-
-      {(state.status === "success" || state.status === "empty") && (
-        <>
-          <WeekNavigator
-            weekStart={state.data.week_start}
-            weekEnd={state.data.week_end}
-            canGoPrev={canGoPrev}
-            canGoNext={canGoNext}
-            onPrev={goPrev}
-            onNext={goNext}
-          />
-          <ScheduleFiltersBar employees={employees} filters={filters} onChange={setFilter} onClear={clearAll} />
-
-          {employees.length === 0 && <EmptyState message="No hay datos de horarios para esta semana." />}
-          {employees.length > 0 && filteredEmployees.length === 0 && (
-            <EmptyState message="Ningún resultado coincide con los filtros aplicados." />
-          )}
-          {filteredEmployees.length > 0 && (
-            <ScheduleWeekView
-              employees={filteredEmployees}
-              today={offset === 0 ? state.data.server_today : undefined}
-              onManage={setManagedEmployeeId}
-            />
-          )}
-        </>
-      )}
-
-      <EmployeeScheduleModal
-        isOpen={managedEmployeeId !== null}
-        employee={managedEmployee}
-        onClose={() => setManagedEmployeeId(null)}
-        onSaved={retry}
-      />
-    </div>
+export default function HorariosPage() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <HorariosPageContent />
+    </Suspense>
   );
 }

@@ -29,7 +29,7 @@ export interface ScheduleDayEntry {
   time_ranges: TimeRange[];
   observation: string | null;
   updated_at: string;
-  source: "default" | "day_override" | "range_override";
+  source: "default" | "day_override" | "range_override" | "shift_override";
 }
 
 export interface EmployeeWeekSchedule {
@@ -76,4 +76,36 @@ export interface ScheduleFilters {
   employee_id: string | null;
   area_id: string | null;
   status_id: string | null;
+}
+
+export type BulkAssignmentKind = "shift" | "status";
+
+export type BulkAssignmentInput =
+  | {
+      employee_ids: string[];
+      start_date: string;
+      end_date: string;
+      weekdays: Weekday[];
+      kind: "shift";
+      modality: "presencial" | "virtual";
+      time_ranges: TimeRange[];
+    }
+  | {
+      employee_ids: string[];
+      start_date: string;
+      end_date: string;
+      weekdays: Weekday[];
+      kind: "status";
+      status_id: string;
+    };
+
+export interface BulkAssignmentSkipped {
+  employee_id: string;
+  skipped_date: string | null;
+  reason: string;
+}
+
+export interface BulkAssignmentResult {
+  created: ScheduleDayEntry[];
+  skipped: BulkAssignmentSkipped[];
 }

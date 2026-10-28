@@ -154,3 +154,27 @@ body {
 .input-ui:focus-visible {
   border-color: var(--accent);
 }
+@keyframes pulseDot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 242, 243, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 7px rgba(242, 242, 243, 0);
+  }
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-toast {
+  animation: toastIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.stripes {
+  background: repeating-linear-gradient(45deg, #cfcfd1 0 4px, transparent 4px 8px);
+}

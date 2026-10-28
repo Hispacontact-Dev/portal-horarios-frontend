@@ -49,6 +49,15 @@ export function rangeRuntimeStatus(range: TimeRange, nowHour: number): RangeRunt
   return "en_curso";
 }
 
+export function rangeProgressPct(range: TimeRange, nowHour: number): number {
+  const start = timeToDecimalHour(range.start);
+  let end = timeToDecimalHour(range.end);
+  if (end <= start) end += 24;
+  if (nowHour <= start) return 0;
+  if (nowHour >= end) return 100;
+  return Math.round(((nowHour - start) / (end - start)) * 100);
+}
+
 export function classifyTimeRange(range: TimeRange, nowHour: number): ClassifiedRange {
   const start = timeToDecimalHour(range.start);
   let end = timeToDecimalHour(range.end);
