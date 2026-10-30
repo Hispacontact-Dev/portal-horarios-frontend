@@ -3,6 +3,7 @@
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { Corners } from "@/components/dashboard/Corners";
 
 interface RenameConfirmModalProps {
   isOpen: boolean;
@@ -25,9 +26,12 @@ export function RenameConfirmModal({
 }: RenameConfirmModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onCancel}>
-      <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 shadow-sm">
-        <p className="text-sm">
-          ¿Seguro que quieres renombrar a <strong>{currentName}</strong> por <strong>{newName}</strong>?
+      <div className="panel anim-up flex w-full max-w-[420px] flex-col gap-3.5 px-5 py-5">
+        <Corners />
+        <h3 className="font-heading text-xl font-semibold">Renombrar</h3>
+        <p className="text-sm text-[var(--neutral-700)]">
+          ¿Seguro que quieres renombrar a <strong className="text-[var(--text)]">{currentName}</strong> por{" "}
+          <strong className="text-[var(--text)]">{newName}</strong>?
         </p>
 
         {error && <ErrorState message={error} />}

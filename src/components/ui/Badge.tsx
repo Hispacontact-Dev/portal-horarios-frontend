@@ -6,7 +6,7 @@ type BadgeProps = HTMLAttributes<HTMLSpanElement>;
 export function Badge({ className, ...props }: BadgeProps) {
   return (
     <span
-      className={cn("inline-block rounded-full px-2 py-0.5 text-xs font-medium", className)}
+      className={cn("inline-block whitespace-nowrap px-2 py-0.5 text-[11px] font-medium", className)}
       {...props}
     />
   );

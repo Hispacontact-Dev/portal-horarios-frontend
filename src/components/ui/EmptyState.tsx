@@ -4,8 +4,8 @@ interface EmptyStateProps {
 
 export function EmptyState({ message }: EmptyStateProps) {
   return (
-    <div className="rounded border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
-      {message}
+    <div className="flex flex-col items-center gap-1 py-9 text-center">
+      <span className="text-[13px] text-[var(--neutral-700)]">{message}</span>
     </div>
   );
 }

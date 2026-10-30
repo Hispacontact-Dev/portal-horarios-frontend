@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { SuccessState } from "@/components/ui/SuccessState";
 import { useUsers } from "@/lib/hooks/useUsers";
 import type { UserCreate } from "@/types/user";
 
@@ -69,11 +70,7 @@ export function UserForm() {
       </Select>
 
       {state.status === "error" && state.error && <ErrorState message={state.error.message} />}
-      {state.status === "success" && (
-        <p role="status" className="text-sm text-green-700">
-          Usuario creado correctamente.
-        </p>
-      )}
+      {state.status === "success" && <SuccessState message="Usuario creado correctamente." />}
 
       <Button type="submit" disabled={!canSubmit}>
         {state.status === "submitting" ? "Creando..." : "Crear usuario"}
