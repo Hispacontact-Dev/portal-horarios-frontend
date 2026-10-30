@@ -3,8 +3,8 @@ import type { Holiday, HolidayCreate, HolidayImportResult } from "@/types/holida
 
 // Corresponde al recurso /holidays del backend (Catálogo de Festivos en la UI). No confundir con
 // src/lib/utils/holidays.ts (el calendario fijo que hoy bloquea días en Horarios, sin relación con
-// este catálogo todavía — specs/010-catalogos-cargos-plantillas-festivos). El backend todavía no
-// expone este recurso — estas llamadas devuelven error real (404/conexión) hasta que exista.
+// este catálogo todavía — specs/010-catalogos-cargos-plantillas-festivos). Lo expone el backend
+// desde specs/009-catalogos-configuracion.
 
 export async function listHolidays(year: number, signal?: AbortSignal): Promise<Holiday[]> {
   return apiFetch<Holiday[]>(`/holidays?year=${year}`, { signal });

@@ -28,19 +28,21 @@ export function useUsers() {
     user: null,
   });
 
-  async function submit(values: UserCreate): Promise<boolean> {
-    if (state.status === "submitting") return false;
+  // Devuelve la cuenta creada (no un booleano) para que quien llame pueda agregarla
+  // a su lista local sin volver a pedir el listado completo.
+  async function submit(values: UserCreate): Promise<User | null> {
+    if (state.status === "submitting") return null;
 
     setState({ status: "submitting", values, error: null, user: null });
 
     try {
       const user = await createUser(values);
       setState({ status: "success", values: null, error: null, user });
-      return true;
+      return user;
     } catch (err) {
       const classified = err instanceof ApiError ? classifyError(err) : null;
       setState({ status: "error", values, error: classified ?? UNKNOWN_ERROR, user: null });
-      return false;
+      return null;
     }
   }
 

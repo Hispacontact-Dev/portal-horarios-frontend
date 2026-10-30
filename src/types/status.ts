@@ -5,6 +5,9 @@ export interface Status {
   name: string;
   is_enabled: boolean;
   is_predefined: boolean;
+  // `true` cuando el Estado representa una ausencia que bloquea la asignación de
+  // turnos; `false` cuando es una modalidad de trabajo (spec 009 del backend, RF-5).
+  blocks_shifts: boolean;
   created_at: string;
   created_by: string;
   updated_at: string;

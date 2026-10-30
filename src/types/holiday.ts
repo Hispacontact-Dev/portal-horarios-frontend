@@ -1,6 +1,7 @@
 // Corresponde al catálogo de Festivos (specs/010-catalogos-cargos-plantillas-festivos). No reemplaza
 // src/lib/utils/holidays.ts (el calendario fijo que hoy bloquea días en Horarios) — esta spec solo
-// cubre la pantalla de administración del catálogo. El backend todavía no expone este recurso.
+// cubre la pantalla de administración del catálogo. El backend lo expone en /holidays desde su
+// specs/009-catalogos-configuracion.
 
 export type HolidayType = "nacional" | "empresa";
 

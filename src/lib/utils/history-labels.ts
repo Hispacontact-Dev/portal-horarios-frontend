@@ -4,6 +4,9 @@ export const ENTITY_TYPE_LABELS: Record<EntityType, string> = {
   employee: "Empleado",
   area: "Área",
   status: "Estado",
+  position: "Cargo",
+  shift_template: "Plantilla de turno",
+  holiday: "Festivo",
   user: "Usuario",
   login: "Inicio de sesión",
 };
@@ -11,8 +14,11 @@ export const ENTITY_TYPE_LABELS: Record<EntityType, string> = {
 export const ACTION_LABELS: Record<string, string> = {
   create: "creó",
   update: "actualizó",
+  delete: "eliminó",
   disable: "deshabilitó",
   enable: "habilitó",
+  deactivate: "retiró el acceso de",
+  reset_password: "restableció la contraseña de",
   status_change: "cambió el estado de",
   login_success: "inició sesión",
   login_failed: "intentó iniciar sesión (fallido)",
@@ -27,6 +33,10 @@ export const FIELD_LABELS: Record<string, string> = {
   status: "Estado",
   name: "Nombre",
   is_predefined: "Predefinido",
+  blocks_shifts: "Bloquea turnos",
+  blocks: "Bloques de horario",
+  weekdays: "Días",
+  is_active: "Acceso activo",
 };
 
 export function summarize(entry: HistoryEntry): string {

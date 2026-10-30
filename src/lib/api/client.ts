@@ -22,6 +22,17 @@ async function parseErrorBody(response: Response): Promise<ApiErrorBody | undefi
   }
 }
 
+// Un 204 (o cualquier respuesta sin cuerpo) no trae JSON que parsear: `response.json()`
+// lanzaría SyntaxError. Lo necesitan `logout()` y `deleteHoliday()`, tipados como void.
+async function parseBody<T>(response: Response): Promise<T> {
+  if (response.status === 204) return undefined as T;
+
+  const text = await response.text();
+  if (text === "") return undefined as T;
+
+  return JSON.parse(text) as T;
+}
+
 let sessionInvalidHandler: (() => void) | null = null;
 
 export function registerSessionInvalidHandler(handler: () => void): void {
@@ -49,5 +60,5 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     throw new ApiError({ status: response.status, message: body?.message ?? response.statusText, body });
   }
 
-  return response.json() as Promise<T>;
+  return parseBody<T>(response);
 }

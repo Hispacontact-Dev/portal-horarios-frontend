@@ -5,13 +5,15 @@ import { useAuth } from "@/lib/hooks/useAuth";
 
 interface RoleGateProps {
   children: ReactNode;
+  /** Qué mostrar a quien no administra; por defecto, nada. */
+  fallback?: ReactNode;
 }
 
-export function RoleGate({ children }: RoleGateProps) {
+export function RoleGate({ children, fallback = null }: RoleGateProps) {
   const { session } = useAuth();
 
   if (session?.role !== "gestion_humana") {
-    return null;
+    return <>{fallback}</>;
   }
 
   return <>{children}</>;

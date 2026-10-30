@@ -1,6 +1,6 @@
 "use client";
 
-export type ConfigTab = "areas" | "estados" | "usuarios" | "cargos" | "plantillas" | "festivos";
+export type ConfigTab = "areas" | "cargos" | "estados" | "plantillas" | "festivos" | "usuarios";
 
 interface ConfigTabsProps {
   active: ConfigTab;
@@ -9,12 +9,14 @@ interface ConfigTabsProps {
 
 const TABS: { key: ConfigTab; label: string }[] = [
   { key: "areas", label: "Áreas" },
-  { key: "estados", label: "Estados" },
-  { key: "usuarios", label: "Usuarios" },
   { key: "cargos", label: "Cargos" },
+  { key: "estados", label: "Estados" },
   { key: "plantillas", label: "Plantillas de turno" },
   { key: "festivos", label: "Festivos" },
+  { key: "usuarios", label: "Usuarios" },
 ];
+
+export const CONFIG_TABS: ConfigTab[] = TABS.map((tab) => tab.key);
 
 export function ConfigTabs({ active, onChange }: ConfigTabsProps) {
   return (

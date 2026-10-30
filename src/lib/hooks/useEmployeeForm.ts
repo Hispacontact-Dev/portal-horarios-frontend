@@ -49,8 +49,10 @@ function valuesFromEmployee(employee?: Employee): EmployeeFormValues {
   return {
     full_name: employee.full_name,
     position: employee.position,
-    area_id: employee.area_id,
-    status_id: employee.status_id,
+    // El formulario siempre maneja strings: un empleado sin referencia al catálogo
+    // arranca con el select vacío y obliga a elegir una opción.
+    area_id: employee.area_id ?? "",
+    status_id: employee.status_id ?? "",
   };
 }
 

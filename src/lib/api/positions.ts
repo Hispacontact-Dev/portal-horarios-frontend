@@ -2,8 +2,8 @@ import { apiFetch } from "@/lib/api/client";
 import type { Position, PositionCreate, PositionDisableResult, PositionUpdate } from "@/types/position";
 
 // Corresponde al recurso /positions del backend (Catálogo de Cargos en la UI, pestaña Configuración).
-// El backend todavía no expone este recurso (specs/010-catalogos-cargos-plantillas-festivos) — estas
-// llamadas devuelven error real (404/conexión) hasta que exista.
+// En el backend la colección se llama `cargos`, pero el path es /positions
+// (specs/009-catalogos-configuracion del backend).
 
 export async function listPositions(): Promise<Position[]> {
   return apiFetch<Position[]>("/positions");

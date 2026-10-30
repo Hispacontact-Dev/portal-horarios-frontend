@@ -17,17 +17,17 @@ export function EmployeeStatusPanel({
   onDone: (updated: Employee) => void;
 }) {
   const { status: statusesStatus, statuses, error: statusesError } = useStatuses();
-  const [selected, setSelected] = useState(employee.status_id);
+  const [selected, setSelected] = useState(employee.status_id ?? "");
   const { isSubmitting, error, changeStatus } = useEmployeeStatusChange({
     employeeId: employee.id,
     onSuccess: (updated) => {
-      setSelected(updated.status_id);
+      setSelected(updated.status_id ?? "");
       onDone(updated);
     },
   });
 
   const same = selected === employee.status_id;
-  const options = selectableOptions(statuses, employee.status_id);
+  const options = selectableOptions(statuses, employee.status_id ?? undefined);
 
   return (
     <section className="panel anim-up flex max-w-full flex-[1_1_300px] flex-col gap-3.5 px-[22px] py-5" style={{ animationDelay: ".3s" }}>
@@ -88,7 +88,7 @@ export function EmployeeStatusPanel({
         <button
           type="button"
           disabled={same || isSubmitting}
-          onClick={() => setSelected(employee.status_id)}
+          onClick={() => setSelected(employee.status_id ?? "")}
           className="h-[38px] flex-1 border border-[var(--accent)] text-sm text-[var(--accent-700)] hover:bg-[var(--accent-100)] disabled:opacity-45"
         >
           Descartar

@@ -4,26 +4,24 @@ import { useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { SuccessState } from "@/components/ui/SuccessState";
-import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
 import { useCreateHoliday } from "@/lib/hooks/useHolidayActions";
 import type { Holiday } from "@/types/holiday";
 
 interface HolidayFormProps {
   year: number;
+  /** Fechas ya registradas, para rechazar el duplicado antes de llamar al backend. */
+  takenDates: string[];
   onSuccess: (holiday: Holiday) => void;
 }
 
-export function HolidayForm({ year, onSuccess }: HolidayFormProps) {
+export function HolidayForm({ year, takenDates, onSuccess }: HolidayFormProps) {
   const [date, setDate] = useState("");
   const [name, setName] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
-  const successFlag = useSuccessFlag();
   const { state, submit } = useCreateHoliday();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    successFlag.hide();
     setValidationError(null);
 
     if (!date || !name.trim()) {
@@ -34,10 +32,13 @@ export function HolidayForm({ year, onSuccess }: HolidayFormProps) {
       setValidationError(`La fecha debe ser del año ${year}.`);
       return;
     }
+    if (takenDates.includes(date)) {
+      setValidationError("Ya hay un día registrado en esa fecha.");
+      return;
+    }
 
     void submit({ date, name: name.trim() }).then((result) => {
       if (!result) return;
-      successFlag.show();
       setDate("");
       setName("");
       onSuccess(result);
@@ -52,7 +53,6 @@ export function HolidayForm({ year, onSuccess }: HolidayFormProps) {
         min={`${year}-01-01`}
         max={`${year}-12-31`}
         onChange={(event) => {
-          successFlag.hide();
           setValidationError(null);
           setDate(event.target.value);
         }}
@@ -63,7 +63,6 @@ export function HolidayForm({ year, onSuccess }: HolidayFormProps) {
         placeholder="Nombre del festivo o día de la empresa"
         value={name}
         onChange={(event) => {
-          successFlag.hide();
           setValidationError(null);
           setName(event.target.value);
         }}
@@ -76,7 +75,6 @@ export function HolidayForm({ year, onSuccess }: HolidayFormProps) {
 
       {validationError && <ErrorState message={validationError} />}
       {!validationError && state.status === "error" && <ErrorState message={state.error.message} />}
-      {successFlag.visible && <SuccessState message="Día agregado" />}
     </form>
   );
 }

@@ -39,7 +39,7 @@ export function EmployeeEditView({
   const original = {
     full_name: employee.full_name,
     position: employee.position,
-    area_id: employee.area_id,
+    area_id: employee.area_id ?? "",
   };
   const dirty =
     values.full_name !== original.full_name ||
@@ -47,7 +47,7 @@ export function EmployeeEditView({
     values.area_id !== original.area_id;
   const nameEmpty = !values.full_name.trim();
   const canSave = dirty && !nameEmpty && !isSubmitting;
-  const areaOptions = selectableOptions(areas, employee.area_id);
+  const areaOptions = selectableOptions(areas, employee.area_id ?? undefined);
   const areaName = areas.find((a) => a.id === values.area_id)?.name ?? employee.area_name;
 
   useEffect(() => {

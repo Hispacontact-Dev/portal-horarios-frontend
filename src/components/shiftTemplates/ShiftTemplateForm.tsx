@@ -28,9 +28,17 @@ interface ShiftTemplateFormProps {
   templateId?: string;
   initialValues?: ShiftTemplateFormValues;
   onSuccess: (template: ShiftTemplate) => void;
+  /** Si se provee, agrega la acción de descartar (el formulario vive en un diálogo). */
+  onCancel?: () => void;
 }
 
-export function ShiftTemplateForm({ mode, templateId, initialValues, onSuccess }: ShiftTemplateFormProps) {
+export function ShiftTemplateForm({
+  mode,
+  templateId,
+  initialValues,
+  onSuccess,
+  onCancel,
+}: ShiftTemplateFormProps) {
   const successFlag = useSuccessFlag();
 
   function handleSuccess(result: ShiftTemplate) {
@@ -141,9 +149,16 @@ export function ShiftTemplateForm({ mode, templateId, initialValues, onSuccess }
       {successFlag.visible && <SuccessState message="Cambios guardados" />}
       {error && <ErrorState message={error.message} />}
 
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Guardando..." : mode === "create" ? "Crear plantilla" : "Guardar cambios"}
-      </Button>
+      <div className="flex justify-end gap-2">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+            Cancelar
+          </Button>
+        )}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Guardando..." : mode === "create" ? "Crear plantilla" : "Guardar cambios"}
+        </Button>
+      </div>
     </form>
   );
 }

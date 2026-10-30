@@ -1,4 +1,12 @@
-export type EntityType = "employee" | "area" | "status" | "user" | "login";
+export type EntityType =
+  | "employee"
+  | "area"
+  | "status"
+  | "position"
+  | "shift_template"
+  | "holiday"
+  | "user"
+  | "login";
 
 export interface HistoryChange {
   field: string;

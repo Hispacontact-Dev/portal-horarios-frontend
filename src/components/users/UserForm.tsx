@@ -5,9 +5,8 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { SuccessState } from "@/components/ui/SuccessState";
 import { useUsers } from "@/lib/hooks/useUsers";
-import type { UserCreate } from "@/types/user";
+import type { User, UserCreate } from "@/types/user";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,7 +20,12 @@ function isValid(values: UserCreate): boolean {
   return values.full_name.trim() !== "" && EMAIL_PATTERN.test(values.email.trim());
 }
 
-export function UserForm() {
+interface UserFormProps {
+  onSuccess: (user: User) => void;
+  onCancel: () => void;
+}
+
+export function UserForm({ onSuccess, onCancel }: UserFormProps) {
   const [values, setValues] = useState<UserCreate>(EMPTY_VALUES);
   const { state, submit } = useUsers();
 
@@ -32,9 +36,10 @@ export function UserForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!isValid(values)) return;
-    const success = await submit(values);
-    if (success) {
+    const created = await submit(values);
+    if (created) {
       setValues(EMPTY_VALUES);
+      onSuccess(created);
     }
   }
 
@@ -70,11 +75,15 @@ export function UserForm() {
       </Select>
 
       {state.status === "error" && state.error && <ErrorState message={state.error.message} />}
-      {state.status === "success" && <SuccessState message="Usuario creado correctamente." />}
 
-      <Button type="submit" disabled={!canSubmit}>
-        {state.status === "submitting" ? "Creando..." : "Crear usuario"}
-      </Button>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="secondary" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={!canSubmit}>
+          {state.status === "submitting" ? "Creando..." : "Crear usuario"}
+        </Button>
+      </div>
     </form>
   );
 }

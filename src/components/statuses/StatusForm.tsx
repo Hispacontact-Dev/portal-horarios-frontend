@@ -1,5 +1,9 @@
 "use client";
 
+// Sin uso desde el rediseño de Configuración (specs/011-rediseno-configuracion): la
+// pestaña Estados pasó a ser de solo lectura. Se conserva para reponer la administración
+// de Estados en un diálogo, como hace la pestaña Usuarios, sin volver a escribirla.
+
 import { type FormEvent } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";

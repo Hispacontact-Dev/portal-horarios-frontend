@@ -40,7 +40,8 @@ const UNKNOWN_ERROR: ClassifiedError = {
 };
 
 // Validación de RF-3 (specs/010-catalogos-cargos-plantillas-festivos): nombre requerido, al menos un
-// día, cada bloque con fin posterior al inicio. "HH:mm" compara bien como string (ancho fijo).
+// día, cada bloque con fin posterior al inicio y sin solapes. "HH:mm" compara bien como string
+// (ancho fijo).
 function validate(values: ShiftTemplateFormValues): ClassifiedError | null {
   if (!values.name.trim()) {
     return { kind: "invalid", message: "Escribí un nombre para la plantilla." };
@@ -54,7 +55,17 @@ function validate(values: ShiftTemplateFormValues): ClassifiedError | null {
   if (values.blocks.some((block) => block.end <= block.start)) {
     return { kind: "invalid", message: "La hora de fin debe ser posterior a la hora de inicio." };
   }
+  if (hasOverlap(values.blocks)) {
+    return { kind: "invalid", message: "Los bloques de horario no pueden solaparse entre sí." };
+  }
   return null;
+}
+
+// El backend rechaza una jornada partida con bloques solapados; se valida acá también
+// para no gastar un viaje al servidor en un error que ya se puede ver.
+function hasOverlap(blocks: TimeRange[]): boolean {
+  const sorted = [...blocks].sort((a, b) => a.start.localeCompare(b.start));
+  return sorted.some((block, index) => index > 0 && block.start < sorted[index - 1].end);
 }
 
 export function useShiftTemplateForm({
@@ -85,7 +96,7 @@ export function useShiftTemplateForm({
       return;
     }
 
-    // Nunca limpiar los datos ingresados antes de confirmar éxito (mismo criterio que useAreaForm).
+    // Nunca limpiar los datos ingresados antes de confirmar éxito (mismo criterio que useStatusForm).
     setState((prev) => ({ ...prev, values, isSubmitting: true, error: null }));
 
     try {

@@ -149,6 +149,9 @@ export function useAreaDisable(
   });
 }
 
+// Sin uso desde el rediseño de Configuración (specs/011-rediseno-configuracion): la
+// pestaña Estados pasó a ser de solo lectura. Se conserva por la misma razón que
+// StatusForm/StatusTable.
 export function useStatusDisable(
   employees: Employee[],
   onDisabled: (status: Status) => void,

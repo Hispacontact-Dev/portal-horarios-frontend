@@ -2,8 +2,8 @@ import { apiFetch } from "@/lib/api/client";
 import type { ShiftTemplate, ShiftTemplateCreate, ShiftTemplateUpdate } from "@/types/shiftTemplate";
 
 // Corresponde al recurso /shift-templates del backend (Catálogo de Plantillas de turno en la UI).
-// El backend todavía no expone este recurso (specs/010-catalogos-cargos-plantillas-festivos) — estas
-// llamadas devuelven error real (404/conexión) hasta que exista.
+// Lo expone el backend desde specs/009-catalogos-configuracion. Solo lunes a viernes,
+// porque el dominio de Horarios no soporta fin de semana.
 
 export async function listShiftTemplates(): Promise<ShiftTemplate[]> {
   return apiFetch<ShiftTemplate[]>("/shift-templates");

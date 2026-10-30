@@ -10,6 +10,27 @@ export function countEmployeesByStatus(employees: Employee[], statusId: string):
   return employees.filter((employee) => employee.status_id === statusId).length;
 }
 
+// Cuántos empleados hay por id de Estado, en una sola pasada. Lo usa la pestaña
+// Estados, que necesita el conteo de todos los Estados a la vez y no de uno solo.
+export function countEmployeesByStatusId(employees: Employee[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  employees.forEach((employee) => {
+    if (employee.status_id === null) return;
+    counts.set(employee.status_id, (counts.get(employee.status_id) ?? 0) + 1);
+  });
+  return counts;
+}
+
+// Mismo criterio para las Áreas, que la pestaña de catálogo muestra por fila.
+export function countEmployeesByAreaId(employees: Employee[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  employees.forEach((employee) => {
+    if (employee.area_id === null) return;
+    counts.set(employee.area_id, (counts.get(employee.area_id) ?? 0) + 1);
+  });
+  return counts;
+}
+
 interface SelectableEntry {
   id: string;
   is_enabled: boolean;
