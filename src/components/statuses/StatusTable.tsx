@@ -22,29 +22,29 @@ export function StatusTable({
   return (
     <Table>
       <thead>
-        <tr>
-          <th className="px-3 py-2 font-medium">Nombre</th>
-          <th className="px-3 py-2 font-medium">Condición</th>
-          <th className="px-3 py-2 font-medium">Origen</th>
-          <th className="px-3 py-2 font-medium">Acciones</th>
+        <tr className="border-b border-[rgba(29,31,32,.35)]">
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Nombre</th>
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Condición</th>
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Origen</th>
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Acciones</th>
         </tr>
       </thead>
       <tbody>
         {statuses.map((status) => (
-          <tr key={status.id} className="border-t">
-            <td className="px-3 py-2">{status.name}</td>
+          <tr key={status.id} className="border-t border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)]">
+            <td className="px-3 py-2 font-medium">{status.name}</td>
             <td className="px-3 py-2">
               <Badge
                 className={
-                  status.is_enabled ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"
+                  status.is_enabled ? "bg-[var(--accent-100)] text-[var(--accent-800)]" : "bg-[#e3e3e5] text-[#3b3b3d]"
                 }
               >
                 {status.is_enabled ? "Habilitado" : "Deshabilitado"}
               </Badge>
             </td>
-            <td className="px-3 py-2">
+            <td className="px-3 py-2 text-[var(--neutral-700)]">
               {status.is_predefined ? (
-                <Badge className="bg-blue-100 text-blue-800">Predefinido</Badge>
+                <Badge className="bg-[var(--accent-100)] text-[var(--accent-700)]">Predefinido</Badge>
               ) : (
                 "Personalizado"
               )}

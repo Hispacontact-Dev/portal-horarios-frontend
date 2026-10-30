@@ -24,9 +24,9 @@ export function nowLineFraction(nowHour: number): number | null {
   return (nowHour - TIMELINE_START_HOUR) / TIMELINE_SPAN_HOURS;
 }
 
-export function filterByArea(entries: TodayScheduleEntry[], areaId: string | null): TodayScheduleEntry[] {
-  if (!areaId) return entries;
-  return entries.filter((entry) => entry.area_id === areaId);
+export function filterByArea(entries: TodayScheduleEntry[], areaName: string | null): TodayScheduleEntry[] {
+  if (!areaName) return entries;
+  return entries.filter((entry) => entry.area_name === areaName);
 }
 
 export function filterByRowStatus(

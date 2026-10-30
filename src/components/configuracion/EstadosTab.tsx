@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Corners } from "@/components/dashboard/Corners";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { StatusTable } from "@/components/statuses/StatusTable";
 import { StatusForm } from "@/components/statuses/StatusForm";
@@ -41,16 +42,19 @@ export function EstadosTab() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold">Estados</h1>
-      <RoleGate>
-        <StatusForm
-          key={editingStatus?.id ?? "create"}
-          mode={editingStatus ? "edit" : "create"}
-          status={editingStatus ?? undefined}
-          onSuccess={handleSuccess}
-        />
-      </RoleGate>
+    <div className="flex flex-col gap-[22px]">
+      <section className="panel anim-up flex flex-col gap-3.5 px-5 py-[18px]" style={{ animationDelay: ".05s" }}>
+        <Corners />
+        <h2 className="font-heading text-[22px] font-semibold">Estados</h2>
+        <RoleGate>
+          <StatusForm
+            key={editingStatus?.id ?? "create"}
+            mode={editingStatus ? "edit" : "create"}
+            status={editingStatus ?? undefined}
+            onSuccess={handleSuccess}
+          />
+        </RoleGate>
+      </section>
 
       {status === "loading" && <Spinner />}
       {status === "error" && <ErrorState message={error.message} />}
@@ -58,13 +62,16 @@ export function EstadosTab() {
         <EmptyState message="No hay estados registrados." />
       )}
       {status === "success" && displayedStatuses.length > 0 && (
-        <StatusTable
-          statuses={displayedStatuses}
-          onEdit={handleEdit}
-          onDisable={catalogDisable.requestDisable}
-          onEnable={catalogDisable.enable}
-          actionsDisabled={catalogDisable.isSubmitting || employeesStatus === "loading"}
-        />
+        <section className="panel anim-up overflow-x-auto" style={{ animationDelay: ".1s" }}>
+          <Corners />
+          <StatusTable
+            statuses={displayedStatuses}
+            onEdit={handleEdit}
+            onDisable={catalogDisable.requestDisable}
+            onEnable={catalogDisable.enable}
+            actionsDisabled={catalogDisable.isSubmitting || employeesStatus === "loading"}
+          />
+        </section>
       )}
 
       {!catalogDisable.pendingEntry && catalogDisable.error && (

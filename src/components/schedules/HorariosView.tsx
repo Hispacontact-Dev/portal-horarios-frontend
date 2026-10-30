@@ -7,11 +7,10 @@ import { RoleGate } from "@/components/auth/RoleGate";
 import { EmployeeScheduleModal } from "@/components/schedules/EmployeeScheduleModal";
 import { ScheduleRangeBlock } from "@/components/schedules/ScheduleRangeBlock";
 import { getInitials } from "@/components/employees/EmployeesView";
-import { useAreas } from "@/lib/hooks/useAreas";
-import { useStatuses } from "@/lib/hooks/useStatuses";
 import { useScheduleFilters } from "@/lib/hooks/useScheduleFilters";
 import { useNowTick } from "@/lib/hooks/useNowTick";
 import { applyScheduleFilters } from "@/lib/utils/scheduleFilters";
+import { statusOptionsFromDays, uniqueAreaNames } from "@/lib/utils/catalog";
 import { toH } from "@/lib/utils/time";
 import { ROUTE_PATHS } from "@/lib/utils/constants";
 import {
@@ -60,29 +59,31 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
   const now = useNowTick();
   const nowHour = now ? nowAsDecimalHour(now) : null;
 
-  const { areas } = useAreas();
-  const { statuses } = useStatuses();
   const employees = state.status === "success" || state.status === "empty" ? state.data.employees : [];
   const { filters, setFilter, clearAll } = useScheduleFilters(employees);
   const filtered = applyScheduleFilters(employees, filters);
-  const hasFilters = !!(filters.employee_id || filters.area_id || filters.status_id);
+  const hasFilters = !!(filters.employee_id || filters.area_name || filters.status_id);
 
   const weekdays = employees[0]?.days ?? [];
   const serverToday = state.status === "success" || state.status === "empty" ? state.data.server_today : undefined;
   const todayDate = offset === 0 ? serverToday : undefined;
   const managedEmployee = employees.find((e) => e.employee_id === managedEmployeeId);
 
-  const areaOptions = areas.filter((a) => a.is_enabled);
-  const statusOptions = statuses.filter((s) => s.is_enabled);
+  const areaOptions = uniqueAreaNames(employees);
+  const statusOptions = statusOptionsFromDays(employees);
 
   const kpis = useMemo(() => {
-    const allRanges = filtered.flatMap((e) => e.days.flatMap((d) => d.time_ranges));
+    // Sobre los días que coinciden con el filtro de Estado (todos, si no hay filtro), para
+    // que estas métricas narren la misma historia que el conteo de personas filtradas.
+    const relevantDays = (e: EmployeeWeekSchedule) =>
+      filters.status_id === null ? e.days : e.days.filter((d) => d.status_id === filters.status_id);
+    const allRanges = filtered.flatMap((e) => relevantDays(e).flatMap((d) => d.time_ranges));
     const totalHours = allRanges.reduce((sum, r) => sum + toH(r.end) - toH(r.start), 0);
-    const sinHorarioDays = filtered.flatMap((e) => e.days).filter((d) => d.time_ranges.length === 0).length;
+    const sinHorarioDays = filtered.flatMap((e) => relevantDays(e)).filter((d) => d.time_ranges.length === 0).length;
     const enCursoAhora =
       nowHour !== null
         ? filtered.filter((e) =>
-            e.days.some(
+            relevantDays(e).some(
               (d) => d.date === todayDate && d.time_ranges.some((r) => rangeRuntimeStatus(r, nowHour) === "en_curso"),
             ),
           ).length
@@ -93,7 +94,7 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
       { label: "Sin horario", value: sinHorarioDays, sub: "días" },
       { label: "Horas programadas", value: Math.round(totalHours), sub: "h" },
     ];
-  }, [filtered, nowHour, todayDate]);
+  }, [filtered, filters.status_id, nowHour, todayDate]);
 
   const sel = "min-h-[38px] border border-[var(--divider)] bg-[#e9e9ea] px-2.5 text-sm outline-none hover:border-[rgba(29,31,32,.45)] focus-visible:border-[var(--accent)]";
   const lbl = "mb-[5px] block text-xs text-[rgba(29,31,32,.7)]";
@@ -172,11 +173,11 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
               </div>
               <div>
                 <label className={lbl}>Área</label>
-                <select value={filters.area_id ?? ""} onChange={(e) => setFilter("area_id", e.target.value || null)} className={sel}>
+                <select value={filters.area_name ?? ""} onChange={(e) => setFilter("area_name", e.target.value || null)} className={sel}>
                   <option value="">Todas</option>
-                  {areaOptions.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
+                  {areaOptions.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
                     </option>
                   ))}
                 </select>
@@ -251,9 +252,12 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
                       {employee.days.map((day, di) => {
                         const isToday = day.date === todayDate;
                         const delay = 0.4 + Math.min(ri, 10) * 0.04 + di * 0.03;
+                        const hiddenByStatusFilter = filters.status_id !== null && day.status_id !== filters.status_id;
                         return (
                           <div key={day.date} className={`flex flex-col justify-center gap-1 px-1.5 py-2 ${isToday ? "bg-[rgba(238,246,255,.7)]" : ""}`}>
-                            {day.time_ranges.length === 0 ? (
+                            {hiddenByStatusFilter ? (
+                              <ScheduleRangeBlock label="—" status="sin_horario" title={`${employee.full_name} · no coincide con el filtro de Estado`} delay={delay} />
+                            ) : day.time_ranges.length === 0 ? (
                               <ScheduleRangeBlock label={day.status_name} status="sin_horario" title={`${employee.full_name} · ${day.status_name}`} delay={delay} />
                             ) : (
                               day.time_ranges.map((range, i) => {

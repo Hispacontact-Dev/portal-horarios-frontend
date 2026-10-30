@@ -10,7 +10,6 @@ import type { ScheduleDayEntry, WeekScheduleResponse } from "@/types/schedule";
 export interface TodayScheduleEntry {
   employee_id: string;
   full_name: string;
-  area_id: string;
   area_name: string;
   day: ScheduleDayEntry;
 }
@@ -26,7 +25,6 @@ function deriveTodayEntries(data: WeekScheduleResponse): TodayScheduleEntry[] {
             {
               employee_id: employee.employee_id,
               full_name: employee.full_name,
-              area_id: employee.area_id,
               area_name: employee.area_name,
               day,
             },

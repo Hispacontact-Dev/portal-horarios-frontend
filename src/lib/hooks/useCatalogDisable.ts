@@ -5,10 +5,12 @@ import { ApiError } from "@/lib/api/client";
 import { classifyError, type ClassifiedError } from "@/lib/api/errors";
 import { disableArea, enableArea } from "@/lib/api/areas";
 import { disableStatus, enableStatus } from "@/lib/api/statuses";
+import { disablePosition, enablePosition } from "@/lib/api/positions";
 import { countEmployeesByArea, countEmployeesByStatus } from "@/lib/utils/catalog";
 import type { Employee } from "@/types/employee";
 import type { Area } from "@/types/area";
 import type { Status } from "@/types/status";
+import type { Position } from "@/types/position";
 
 interface CatalogEntry {
   id: string;
@@ -17,12 +19,14 @@ interface CatalogEntry {
 
 interface CatalogDisableResult<T extends CatalogEntry> {
   entry: T;
-  affectedEmployees: number;
+  affectedEmployees?: number;
 }
 
 export interface UseCatalogDisableOptions<T extends CatalogEntry> {
   employees: Employee[];
-  countAffected: (employees: Employee[], entryId: string) => number;
+  // `null` cuando el catálogo no tiene forma de vincularse a empleados todavía (ej. Cargos, que
+  // Employee no referencia por id) — nunca se debe mostrar un conteo inventado en su lugar.
+  countAffected: (employees: Employee[], entryId: string) => number | null;
   disableEntry: (id: string) => Promise<CatalogDisableResult<T>>;
   enableEntry: (id: string) => Promise<T>;
   onDisabled: (entry: T) => void;
@@ -117,7 +121,7 @@ export function useCatalogDisable<T extends CatalogEntry>({
 
   return {
     pendingEntry,
-    affectedCount: pendingEntry ? countAffected(employees, pendingEntry.id) : 0,
+    affectedCount: pendingEntry ? countAffected(employees, pendingEntry.id) : null,
     isSubmitting: state.isSubmitting,
     error: state.error,
     requestDisable,
@@ -158,6 +162,26 @@ export function useStatusDisable(
       return { entry: result.status, affectedEmployees: result.affected_employees };
     },
     enableEntry: enableStatus,
+    onDisabled,
+    onEnabled,
+  });
+}
+
+// Cargos no tiene vínculo con Employee todavía (position sigue siendo un enum fijo, no un id) —
+// por eso no recibe `employees` ni puede calcular un conteo real de afectados (countAffected
+// devuelve null siempre; DisableConfirmModal debe mostrar el mensaje neutro en ese caso).
+export function usePositionDisable(
+  onDisabled: (position: Position) => void,
+  onEnabled: (position: Position) => void
+) {
+  return useCatalogDisable<Position>({
+    employees: [],
+    countAffected: () => null,
+    disableEntry: async (id: string) => {
+      const result = await disablePosition(id);
+      return { entry: result.position };
+    },
+    enableEntry: enablePosition,
     onDisabled,
     onEnabled,
   });

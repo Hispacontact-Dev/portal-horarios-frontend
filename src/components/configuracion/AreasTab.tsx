@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Corners } from "@/components/dashboard/Corners";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { AreaTable } from "@/components/areas/AreaTable";
 import { AreaForm } from "@/components/areas/AreaForm";
@@ -41,16 +42,19 @@ export function AreasTab() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold">Áreas</h1>
-      <RoleGate>
-        <AreaForm
-          key={editingArea?.id ?? "create"}
-          mode={editingArea ? "edit" : "create"}
-          area={editingArea ?? undefined}
-          onSuccess={handleSuccess}
-        />
-      </RoleGate>
+    <div className="flex flex-col gap-[22px]">
+      <section className="panel anim-up flex flex-col gap-3.5 px-5 py-[18px]" style={{ animationDelay: ".05s" }}>
+        <Corners />
+        <h2 className="font-heading text-[22px] font-semibold">Áreas</h2>
+        <RoleGate>
+          <AreaForm
+            key={editingArea?.id ?? "create"}
+            mode={editingArea ? "edit" : "create"}
+            area={editingArea ?? undefined}
+            onSuccess={handleSuccess}
+          />
+        </RoleGate>
+      </section>
 
       {status === "loading" && <Spinner />}
       {status === "error" && <ErrorState message={error.message} />}
@@ -58,13 +62,16 @@ export function AreasTab() {
         <EmptyState message="No hay áreas registradas." />
       )}
       {status === "success" && displayedAreas.length > 0 && (
-        <AreaTable
-          areas={displayedAreas}
-          onEdit={handleEdit}
-          onDisable={catalogDisable.requestDisable}
-          onEnable={catalogDisable.enable}
-          actionsDisabled={catalogDisable.isSubmitting || employeesStatus === "loading"}
-        />
+        <section className="panel anim-up overflow-x-auto" style={{ animationDelay: ".1s" }}>
+          <Corners />
+          <AreaTable
+            areas={displayedAreas}
+            onEdit={handleEdit}
+            onDisable={catalogDisable.requestDisable}
+            onEnable={catalogDisable.enable}
+            actionsDisabled={catalogDisable.isSubmitting || employeesStatus === "loading"}
+          />
+        </section>
       )}
 
       {!catalogDisable.pendingEntry && catalogDisable.error && (

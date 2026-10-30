@@ -9,6 +9,7 @@ import { useTodaySchedule } from "@/lib/hooks/useTodaySchedule";
 import { useNowTick } from "@/lib/hooks/useNowTick";
 import { nowAsDecimalHour, rowStatusLabel, type RowStatus } from "@/lib/utils/scheduleStatus";
 import { filterByArea, filterByRowStatus, sortByRowPriority } from "@/lib/utils/scheduleLayout";
+import { uniqueAreaNames } from "@/lib/utils/catalog";
 import { TurnosHoyHourRow } from "./turnos-hoy/TurnosHoyHourRow";
 import { TurnosHoyRow } from "./turnos-hoy/TurnosHoyRow";
 import { TurnosHoyNowLine } from "./turnos-hoy/TurnosHoyNowLine";
@@ -20,24 +21,22 @@ const STAGGER_LIMIT = 10;
 export function TurnosHoy() {
   const { state, retry } = useTodaySchedule();
   const nowTick = useNowTick();
-  const [areaId, setAreaId] = useState<string | null>(null);
+  const [areaName, setAreaName] = useState<string | null>(null);
   const [rowStatus, setRowStatus] = useState<RowStatus | null>(null);
 
   const nowHour = nowAsDecimalHour(nowTick ?? new Date());
 
   const areaOptions = useMemo(() => {
     if (state.status !== "success") return [];
-    const map = new Map<string, string>();
-    for (const entry of state.data) map.set(entry.area_id, entry.area_name);
-    return Array.from(map.entries());
+    return uniqueAreaNames(state.data);
   }, [state]);
 
   const visibleEntries = useMemo(() => {
     if (state.status !== "success") return [];
-    const byArea = filterByArea(state.data, areaId);
+    const byArea = filterByArea(state.data, areaName);
     const byStatus = filterByRowStatus(byArea, rowStatus, nowHour);
     return sortByRowPriority(byStatus, nowHour);
-  }, [state, areaId, rowStatus, nowHour]);
+  }, [state, areaName, rowStatus, nowHour]);
 
   return (
     <section className="panel anim-up flex flex-col gap-3 px-5 py-[18px]" style={{ animationDelay: ".3s" }}>
@@ -47,14 +46,14 @@ export function TurnosHoy() {
         <div className="flex flex-wrap items-center gap-2">
           {state.status === "success" && areaOptions.length > 1 && (
             <Select
-              value={areaId ?? ""}
-              onChange={(e) => setAreaId(e.target.value || null)}
+              value={areaName ?? ""}
+              onChange={(e) => setAreaName(e.target.value || null)}
               className="h-7 text-xs"
               aria-label="Filtrar por área"
             >
               <option value="">Todas las áreas</option>
-              {areaOptions.map(([id, name]) => (
-                <option key={id} value={id}>
+              {areaOptions.map((name) => (
+                <option key={name} value={name}>
                   {name}
                 </option>
               ))}

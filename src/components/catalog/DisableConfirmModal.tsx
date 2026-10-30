@@ -3,11 +3,13 @@
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { Corners } from "@/components/dashboard/Corners";
 
 interface DisableConfirmModalProps {
   isOpen: boolean;
   entryName: string;
-  affectedCount: number;
+  /** `null` cuando el catálogo no tiene forma de calcular empleados afectados todavía (ej. Cargos). */
+  affectedCount: number | null;
   isSubmitting: boolean;
   error?: string | null;
   onConfirm: () => void;
@@ -25,14 +27,17 @@ export function DisableConfirmModal({
 }: DisableConfirmModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onCancel}>
-      <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 shadow-sm">
-        <p className="text-sm">
-          ¿Deshabilitar <strong>{entryName}</strong>?{" "}
-          {affectedCount > 0
-            ? `Hay ${affectedCount} empleado${affectedCount === 1 ? "" : "s"} asignado${
-                affectedCount === 1 ? "" : "s"
-              } que conservarán esta referencia.`
-            : "No tiene empleados asignados actualmente."}
+      <div className="panel anim-up flex w-full max-w-[420px] flex-col gap-3.5 px-5 py-5">
+        <Corners />
+        <h3 className="font-heading text-xl font-semibold">Deshabilitar «{entryName}»</h3>
+        <p className="text-sm text-[var(--neutral-700)]">
+          {affectedCount === null
+            ? "No es posible calcular cuántos empleados están afectados todavía."
+            : affectedCount > 0
+              ? `Hay ${affectedCount} empleado${affectedCount === 1 ? "" : "s"} asignado${
+                  affectedCount === 1 ? "" : "s"
+                } que conservarán esta referencia.`
+              : "No tiene empleados asignados actualmente."}
         </p>
 
         {error && <ErrorState message={error} />}

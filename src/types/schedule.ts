@@ -36,7 +36,7 @@ export interface EmployeeWeekSchedule {
   employee_id: string;
   full_name: string;
   position: EmployeePosition;
-  area_id: string;
+  // El backend no incluye area_id en GET /schedules/week, solo area_name.
   area_name: string;
   is_active: boolean;
   days: ScheduleDayEntry[];
@@ -74,7 +74,8 @@ export interface DefaultScheduleChangeInput {
 
 export interface ScheduleFilters {
   employee_id: string | null;
-  area_id: string | null;
+  // Nombre de área, no id: /schedules/week no devuelve area_id, solo area_name.
+  area_name: string | null;
   status_id: string | null;
 }
 

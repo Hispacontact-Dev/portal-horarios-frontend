@@ -22,20 +22,20 @@ export function AreaTable({
   return (
     <Table>
       <thead>
-        <tr>
-          <th className="px-3 py-2 font-medium">Nombre</th>
-          <th className="px-3 py-2 font-medium">Condición</th>
-          <th className="px-3 py-2 font-medium">Acciones</th>
+        <tr className="border-b border-[rgba(29,31,32,.35)]">
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Nombre</th>
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Condición</th>
+          <th className="px-3 py-2 text-[11px] font-medium uppercase tracking-[.08em] text-[var(--neutral-700)]">Acciones</th>
         </tr>
       </thead>
       <tbody>
         {areas.map((area) => (
-          <tr key={area.id} className="border-t">
-            <td className="px-3 py-2">{area.name}</td>
+          <tr key={area.id} className="border-t border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)]">
+            <td className="px-3 py-2 font-medium">{area.name}</td>
             <td className="px-3 py-2">
               <Badge
                 className={
-                  area.is_enabled ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"
+                  area.is_enabled ? "bg-[var(--accent-100)] text-[var(--accent-800)]" : "bg-[#e3e3e5] text-[#3b3b3d]"
                 }
               >
                 {area.is_enabled ? "Habilitada" : "Deshabilitada"}

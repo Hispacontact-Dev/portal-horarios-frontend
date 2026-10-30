@@ -4,9 +4,9 @@ import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Corners } from "@/components/dashboard/Corners";
 import { useEmployees } from "@/lib/hooks/useEmployees";
-import { useAreas } from "@/lib/hooks/useAreas";
 import { useStatuses } from "@/lib/hooks/useStatuses";
 import { useBulkAssignment } from "@/lib/hooks/useBulkAssignment";
+import { uniqueAreaNames } from "@/lib/utils/catalog";
 import { toH } from "@/lib/utils/time";
 import { addWeeks, businessDaysBetween, mondayOf, toISODate } from "@/lib/utils/week";
 import { ROUTE_PATHS } from "@/lib/utils/constants";
@@ -52,9 +52,9 @@ function Paso({ n, t, children }: { n: string; t: string; children?: ReactNode }
 
 export function AdministrarHorariosView() {
   const { status: employeesStatus, employees, error: employeesError } = useEmployees();
-  const { areas } = useAreas();
   const { statuses } = useStatuses();
   const { state, submit } = useBulkAssignment();
+  const areaOptions = uniqueAreaNames(employees);
 
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [q, setQ] = useState("");
@@ -75,7 +75,7 @@ export function AdministrarHorariosView() {
   const [lastResult, setLastResult] = useState<Awaited<ReturnType<typeof submit>> | null>(null);
 
   const visibles = employees.filter(
-    (e) => (!q || e.full_name.toLowerCase().includes(q.toLowerCase())) && (!area || e.area_id === area),
+    (e) => (!q || e.full_name.toLowerCase().includes(q.toLowerCase())) && (!area || e.area_name === area),
   );
   const elegidos = employees.filter((e) => sel.has(e.id));
   const toggle = (id: string) =>
@@ -214,9 +214,9 @@ export function AdministrarHorariosView() {
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar empleado…" className={inp} />
               <select value={area} onChange={(e) => setArea(e.target.value)} className={inp}>
                 <option value="">Todas las áreas</option>
-                {areas.filter((a) => a.is_enabled).map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name}
+                {areaOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
                   </option>
                 ))}
               </select>
