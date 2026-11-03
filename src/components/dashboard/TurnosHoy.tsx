@@ -18,6 +18,15 @@ import { TurnosHoySkeletonRow } from "./turnos-hoy/TurnosHoySkeletonRow";
 const ROW_STATUS_OPTIONS: RowStatus[] = ["sin_horario", "en_curso", "finalizado", "programado"];
 const STAGGER_LIMIT = 10;
 
+/** La regla de horas se queda fija arriba mientras la lista se desplaza. */
+function HourRuler() {
+  return (
+    <div className="sticky top-0 z-[2] shrink-0 bg-[var(--bg)]">
+      <TurnosHoyHourRow />
+    </div>
+  );
+}
+
 export function TurnosHoy() {
   const { state, retry } = useTodaySchedule();
   const nowTick = useNowTick();
@@ -39,7 +48,14 @@ export function TurnosHoy() {
   }, [state, areaName, rowStatus, nowHour]);
 
   return (
-    <section className="panel anim-up flex flex-col gap-3 px-5 py-[18px]" style={{ animationDelay: ".3s" }}>
+    <section
+      // `--thy-name-col` y `--thy-gap` son la única fuente de verdad de la rejilla: las heredan
+      // la regla de horas, las filas, el esqueleto y la línea de "ahora".
+      // `min-h-0` deja que los hijos se encojan dentro del alto que la rejilla del dashboard
+      // le da a la tarjeta, en vez de desbordarla.
+      className="panel anim-up flex min-h-0 flex-col gap-3 px-5 py-[18px] [--thy-gap:8px] [--thy-name-col:120px] md:[--thy-name-col:190px]"
+      style={{ animationDelay: ".3s" }}
+    >
       <Corners />
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-heading whitespace-nowrap text-[22px] font-semibold">Turnos de hoy</h2>
@@ -84,30 +100,39 @@ export function TurnosHoy() {
       </div>
 
       {state.status === "loading" && (
-        <div className="flex flex-col">
-          <TurnosHoyHourRow />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <HourRuler />
           {Array.from({ length: 6 }, (_, i) => (
             <TurnosHoySkeletonRow key={i} />
           ))}
         </div>
       )}
 
-      {state.status === "error" && <ErrorState message={state.error.message} onRetry={retry} />}
+      {state.status === "error" && (
+        <div className="grid min-h-0 flex-1 place-items-center">
+          <ErrorState message={state.error.message} onRetry={retry} />
+        </div>
+      )}
 
       {state.status === "empty" && (
-        <div className="rounded border border-dashed border-[var(--divider)] px-4 py-6 text-center text-sm text-[var(--neutral-700)]">
-          No hay turnos programados para hoy.{" "}
-          <Link href="/horarios" className="font-medium text-[var(--accent-700)] hover:text-[var(--accent-800)]">
-            + Nuevo horario
-          </Link>
+        <div className="grid min-h-0 flex-1 place-items-center">
+          <div className="rounded border border-dashed border-[var(--divider)] px-4 py-6 text-center text-sm text-[var(--neutral-700)]">
+            No hay turnos programados para hoy.{" "}
+            <Link href="/horarios" className="font-medium text-[var(--accent-700)] hover:text-[var(--accent-800)]">
+              + Nuevo horario
+            </Link>
+          </div>
         </div>
       )}
 
       {state.status === "success" && (
-        <div className="flex flex-col">
-          <TurnosHoyHourRow />
-          <div className="relative">
-            <div role="list" className="flex max-h-[460px] flex-col overflow-y-auto">
+        // La regla de horas y la línea de "ahora" van DENTRO del contenedor con scroll: si
+        // quedan afuera, la barra de desplazamiento le roba ancho solo a las filas y las
+        // barras de turno se corren respecto de las etiquetas de hora.
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <div className="relative flex min-h-full flex-1 flex-col">
+            <HourRuler />
+            <div role="list" className="flex min-h-0 flex-1 flex-col">
               {visibleEntries.map((entry, i) => (
                 <TurnosHoyRow
                   key={entry.employee_id}

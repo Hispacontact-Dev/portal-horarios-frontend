@@ -17,7 +17,8 @@ export interface HistoryChange {
 export interface HistoryEntry {
   id: string;
   entity_type: EntityType;
-  entity_id: string;
+  // Las entradas de inicio de sesión no apuntan a ninguna entidad.
+  entity_id: string | null;
   action: string;
   actor_id: string | null;
   actor_name: string;

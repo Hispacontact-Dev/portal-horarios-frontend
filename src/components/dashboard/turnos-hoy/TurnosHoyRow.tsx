@@ -73,7 +73,9 @@ export function TurnosHoyRow({ entry, nowHour, animationDelay }: TurnosHoyRowPro
       tabIndex={0}
       onClick={goToEmployee}
       onKeyDown={handleKeyDown}
-      className="grid h-[46px] cursor-pointer grid-cols-[120px_minmax(0,1fr)] items-center gap-2 border-t border-[var(--divider)] py-2.5 outline-none hover:bg-[var(--accent-100)] focus-visible:bg-[var(--accent-100)] md:grid-cols-[190px_minmax(0,1fr)]"
+      // `flex-1` con piso de 46px: con pocos turnos las filas se reparten en el alto de la
+      // tarjeta; con muchos se frenan en 46px y la lista pasa a desplazarse.
+      className="grid min-h-[46px] flex-1 cursor-pointer grid-cols-[var(--thy-name-col)_minmax(0,1fr)] items-center gap-[var(--thy-gap)] border-t border-[var(--divider)] py-2.5 outline-none hover:bg-[var(--accent-100)] focus-visible:bg-[var(--accent-100)]"
     >
       <div className="flex flex-col overflow-hidden" title={`${entry.full_name} · ${entry.area_name}`}>
         <span className="truncate text-sm font-medium md:hidden">{initialsOf(entry.full_name)}</span>
