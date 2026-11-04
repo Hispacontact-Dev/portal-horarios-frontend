@@ -27,9 +27,18 @@ export interface AuditEvent {
   entryIds: string[];
 }
 
-export type AuditRow =
-  | { kind: "event"; id: string; event: AuditEvent }
-  | { kind: "burst"; id: string; actor: string; events: AuditEvent[] };
+/** Entidad cuyas altas en lote se pliegan en una sola fila. */
+export type BurstSubject = "employee" | "holiday";
+
+export interface AuditBurstRow {
+  kind: "burst";
+  id: string;
+  actor: string;
+  subject: BurstSubject;
+  events: AuditEvent[];
+}
+
+export type AuditRow = { kind: "event"; id: string; event: AuditEvent } | AuditBurstRow;
 
 export interface AuditDay {
   dayKey: string;
@@ -96,38 +105,52 @@ export function foldCreateWithStatus(entries: HistoryEntry[]): AuditEvent[] {
   return events;
 }
 
-function isBurstCandidate(event: AuditEvent): boolean {
-  return event.entry.entity_type === "employee" && event.entry.action === "create";
+/**
+ * Entidad de la ráfaga a la que pertenece el evento, o null si no se pliega. Los festivos
+ * entran acá porque importar los nacionales de un año genera un alta por día (~18 entradas
+ * seguidas del mismo actor), y el backend las registra sin agruparlas.
+ */
+function burstSubject(event: AuditEvent): BurstSubject | null {
+  if (event.entry.action !== "create") return null;
+  if (event.entry.entity_type === "employee") return "employee";
+  if (event.entry.entity_type === "holiday") return "holiday";
+  return null;
 }
 
 /**
- * Agrupa las altas consecutivas del mismo usuario (al menos tres en diez minutos y el
- * mismo día) en una sola fila desplegable. Los eventos llegan del más reciente al más
- * antiguo, así que la distancia se mide del anterior al actual.
+ * Agrupa las altas consecutivas del mismo usuario sobre la misma entidad (al menos tres en
+ * diez minutos y el mismo día) en una sola fila desplegable. Los eventos llegan del más
+ * reciente al más antiguo, así que la distancia se mide del anterior al actual.
  */
 export function groupBursts(events: AuditEvent[], enabled = true): AuditRow[] {
   const rows: AuditRow[] = [];
   let run: AuditEvent[] = [];
+  let runSubject: BurstSubject | null = null;
 
   function flush(): void {
-    if (run.length >= BURST_MIN_ITEMS) {
+    if (runSubject !== null && run.length >= BURST_MIN_ITEMS) {
       rows.push({
         kind: "burst",
         id: `${run[0].id}-burst`,
         actor: run[0].entry.actor_name,
+        subject: runSubject,
         events: run,
       });
     } else {
       run.forEach((event) => rows.push({ kind: "event", id: event.id, event }));
     }
     run = [];
+    runSubject = null;
   }
 
   for (const event of events) {
+    const subject = enabled ? burstSubject(event) : null;
     const previous = run[run.length - 1];
+    // Una ráfaga no mezcla entidades: las altas de empleados y las de festivos van en filas
+    // distintas aunque caigan en la misma ventana.
     const continues =
-      enabled &&
-      isBurstCandidate(event) &&
+      subject !== null &&
+      subject === runSubject &&
       previous !== undefined &&
       previous.entry.actor_id === event.entry.actor_id &&
       bogotaDayKey(previous.entry.occurred_at) === bogotaDayKey(event.entry.occurred_at) &&
@@ -140,8 +163,12 @@ export function groupBursts(events: AuditEvent[], enabled = true): AuditRow[] {
     }
 
     flush();
-    if (enabled && isBurstCandidate(event)) run = [event];
-    else rows.push({ kind: "event", id: event.id, event });
+    if (subject !== null) {
+      run = [event];
+      runSubject = subject;
+    } else {
+      rows.push({ kind: "event", id: event.id, event });
+    }
   }
 
   flush();
@@ -189,6 +216,44 @@ export function createPreviewValues(event: AuditEvent): string[] {
     .filter((change) => change.field !== "full_name" && change.field !== "name")
     .map((change) => formatChangeValue(change.field, change.new_value))
     .filter((value) => value !== "—");
+}
+
+const DAY_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Fecha del día que registró un alta de festivo. Hoy el backend manda esas entradas sin
+ * cambios, así que devuelve null; en cuanto guarde `date` en los cambios, la fila y el
+ * detalle lo aprovechan sin más ajustes.
+ */
+export function eventDateValue(event: AuditEvent): string | null {
+  const change = event.changes.find((item) => item.field === "date");
+  const value = change?.new_value ?? change?.old_value;
+  return typeof value === "string" && DAY_KEY_PATTERN.test(value) ? value : null;
+}
+
+/** Años distintos que toca una ráfaga; vacío si las entradas no traen la fecha. */
+export function burstYears(events: AuditEvent[]): string[] {
+  const years = new Set<string>();
+  for (const event of events) {
+    const date = eventDateValue(event);
+    if (date !== null) years.add(date.slice(0, 4));
+  }
+  return [...years].sort();
+}
+
+/** Frase de la fila plegada; con un único año conocido se nombra la importación de ese año. */
+export function burstLabel(row: AuditBurstRow): string {
+  if (row.subject === "employee") return `creó ${row.events.length} empleados`;
+  const years = burstYears(row.events);
+  if (years.length === 1) return `importó los festivos de ${years[0]}`;
+  return `creó ${row.events.length} festivos`;
+}
+
+/** Conteo de la línea meta del detalle de una ráfaga. */
+export function burstCountLabel(row: AuditBurstRow): string {
+  return row.subject === "employee"
+    ? `${row.events.length} altas`
+    : `${row.events.length} festivos`;
 }
 
 export function normalizeText(value: string): string {

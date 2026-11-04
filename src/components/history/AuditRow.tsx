@@ -2,7 +2,13 @@
 
 import { Badge } from "@/components/ui/Badge";
 import { AuditRowDetail } from "@/components/history/AuditRowDetail";
-import { actorInitials, createPreviewValues, type AuditRow as Row, type TargetResolver } from "@/lib/utils/audit";
+import {
+  actorInitials,
+  burstLabel,
+  createPreviewValues,
+  type AuditRow as Row,
+  type TargetResolver,
+} from "@/lib/utils/audit";
 import { formatTimeShort } from "@/lib/utils/date";
 import {
   CATEGORY_BY_ENTITY,
@@ -38,11 +44,15 @@ export function AuditRow({ row, resolveTarget, isOpen, onToggle }: AuditRowProps
 
   const preview = (() => {
     if (row.kind === "burst") {
+      // Las altas de festivos todavía llegan sin nombre: sin ninguno no hay resumen que mostrar.
       const names = row.events
-        .slice(0, 2)
-        .map((event) => resolveTarget(event.entry) ?? "Empleado")
-        .join(", ");
-      return <>{`${names} y ${row.events.length - 2} más`}</>;
+        .map((event) => resolveTarget(event.entry))
+        .filter((name): name is string => name !== null);
+      if (names.length === 0) return null;
+
+      const shown = names.slice(0, 2);
+      const rest = row.events.length - shown.length;
+      return <>{rest > 0 ? `${shown.join(", ")} y ${rest} más` : shown.join(", ")}</>;
     }
 
     if (entry.action === "create") {
@@ -94,9 +104,7 @@ export function AuditRow({ row, resolveTarget, isOpen, onToggle }: AuditRowProps
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className={`text-sm leading-snug ${isLogin ? "text-[var(--neutral-700)]" : ""}`}>
             <b className="font-medium">{entry.actor_name || "Sistema"}</b>{" "}
-            {row.kind === "burst"
-              ? `creó ${row.events.length} empleados`
-              : describeAction(entry)}
+            {row.kind === "burst" ? burstLabel(row) : describeAction(entry)}
             {row.kind === "event" && targetName && (
               <> <b className="font-medium text-[var(--accent-800)]">{targetName}</b></>
             )}

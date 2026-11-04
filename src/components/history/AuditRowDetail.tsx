@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { Table, Th, TheadRow } from "@/components/ui/Table";
-import { createPreviewValues, type AuditEvent, type AuditRow, type TargetResolver } from "@/lib/utils/audit";
+import {
+  burstCountLabel,
+  createPreviewValues,
+  type AuditEvent,
+  type AuditRow,
+  type TargetResolver,
+} from "@/lib/utils/audit";
 import { formatDateTime, formatTimeShort } from "@/lib/utils/date";
-import { fieldLabel, formatFieldValue } from "@/lib/utils/history-labels";
+import { ENTITY_TYPE_LABELS, fieldLabel, formatFieldValue } from "@/lib/utils/history-labels";
 import { ROUTE_PATHS } from "@/lib/utils/constants";
 
 interface AuditRowDetailProps {
@@ -29,37 +35,43 @@ export function AuditRowDetail({ row, resolveTarget }: AuditRowDetailProps) {
   if (row.kind === "burst") {
     const first = row.events[0].entry.occurred_at;
     const last = row.events[row.events.length - 1].entry.occurred_at;
+    // Sin un solo nombre resuelto (las altas de festivos vienen sin cambios) la lista serían
+    // N renglones vacíos: se deja solo la línea de meta.
+    const hasNames = row.events.some((event) => resolveTarget(event.entry) !== null);
 
     return (
       <div className="anim-slide flex flex-col gap-3 py-3 pl-2 pr-2 sm:pl-[104px]">
-        <div className="grid max-w-[760px] gap-x-6 sm:grid-cols-2">
-          {row.events.map((event) => {
-            const href = employeeHref(event);
-            const name = resolveTarget(event.entry) ?? "Empleado";
-            return (
-              <div
-                key={event.id}
-                className="flex items-baseline justify-between gap-3 border-b border-[var(--divider)] py-[7px] text-[13px]"
-              >
-                {href ? (
-                  <Link href={href} className="font-medium text-[var(--accent-700)] hover:text-[var(--accent-800)]">
-                    {name}
-                  </Link>
-                ) : (
-                  <span className="font-medium">{name}</span>
-                )}
-                <span className="text-xs text-[var(--neutral-700)]">
-                  {createPreviewValues(event).join(" · ")}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {hasNames && (
+          <div className="grid max-w-[760px] gap-x-6 sm:grid-cols-2">
+            {row.events.map((event) => {
+              const href = employeeHref(event);
+              const name =
+                resolveTarget(event.entry) ?? ENTITY_TYPE_LABELS[event.entry.entity_type];
+              return (
+                <div
+                  key={event.id}
+                  className="flex items-baseline justify-between gap-3 border-b border-[var(--divider)] py-[7px] text-[13px]"
+                >
+                  {href ? (
+                    <Link href={href} className="font-medium text-[var(--accent-700)] hover:text-[var(--accent-800)]">
+                      {name}
+                    </Link>
+                  ) : (
+                    <span className="font-medium">{name}</span>
+                  )}
+                  <span className="text-xs text-[var(--neutral-700)]">
+                    {createPreviewValues(event).join(" · ")}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
         <MetaLine>
           <span className="tabular-nums">
             {formatDateTime(last)} – {formatTimeShort(first)}
           </span>
-          <span>{row.events.length} altas</span>
+          <span>{burstCountLabel(row)}</span>
         </MetaLine>
       </div>
     );

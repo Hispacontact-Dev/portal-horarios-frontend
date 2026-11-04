@@ -60,6 +60,14 @@ export function formatDate(value: string): string {
   return dateFormat.format(parseBackendDate(value));
 }
 
+/**
+ * Fecha suelta del backend ("2026-01-01", sin hora) como "01/01/2026". No pasa por
+ * `formatDate`, que asume un instante: mediodía UTC cae dentro del mismo día en Bogotá.
+ */
+export function formatDayKey(dayKey: string): string {
+  return dateFormat.format(new Date(`${dayKey}T12:00:00Z`));
+}
+
 export function formatDateTime(value: string): string {
   return dateTimeFormat.format(parseBackendDate(value));
 }

@@ -1,4 +1,5 @@
 import { POSITION_LABELS, ROLE_LABELS } from "@/lib/utils/constants";
+import { formatDayKey } from "@/lib/utils/date";
 import type { EntityType, HistoryChange, HistoryEntry } from "@/types/history";
 
 export const ENTITY_TYPE_LABELS: Record<EntityType, string> = {
@@ -108,6 +109,8 @@ export function formatFieldValue(value: unknown): string {
   return String(value);
 }
 
+const DAY_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
  * Valor de un cambio, traducido cuando el campo guarda un identificador y no un texto:
  * el historial de un empleado trae `position: "practicante"` y el de una cuenta
@@ -115,6 +118,7 @@ export function formatFieldValue(value: unknown): string {
  */
 export function formatChangeValue(field: string, value: unknown): string {
   if (typeof value === "string") {
+    if (field === "date" && DAY_KEY_PATTERN.test(value)) return formatDayKey(value);
     if (field === "position" && value in POSITION_LABELS) {
       return POSITION_LABELS[value as keyof typeof POSITION_LABELS];
     }
