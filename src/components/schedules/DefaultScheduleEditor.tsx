@@ -9,27 +9,23 @@ import { SuccessState } from "@/components/ui/SuccessState";
 import { useDefaultScheduleChange } from "@/lib/hooks/useDefaultScheduleChange";
 import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
 import { useDismissibleNotice } from "@/lib/hooks/useDismissibleNotice";
+import { WEEKDAY_LABELS, WEEKDAY_ORDER, WORKWEEK_WEEKDAYS } from "@/lib/utils/constants";
 import type { DefaultScheduleDay, EmployeeDefaultSchedule, TimeRange, Weekday } from "@/types/schedule";
-
-export const WEEKDAY_LABELS: Record<Weekday, string> = {
-  monday: "Lunes",
-  tuesday: "Martes",
-  wednesday: "Miércoles",
-  thursday: "Jueves",
-  friday: "Viernes",
-};
 
 // Plantilla en blanco para completar: no existe todavía un endpoint que devuelva el horario habitual
 // real de la persona (ninguna tarea 1-20 lo define), así que no se puede precargar su valor actual sin
 // inventar datos de negocio (docs/constitution.md punto 5). Gestión Humana completa desde acá.
-const BLANK_DEFAULT_DAYS: DefaultScheduleDay[] = (
-  Object.keys(WEEKDAY_LABELS) as Weekday[]
-).map((weekday) => ({
-  weekday,
-  works: true,
-  modality: "presencial",
-  time_ranges: [{ start: "08:00", end: "17:00" }],
-}));
+// El fin de semana nace apagado: normalmente se descansa, y se enciende el sábado o domingo que
+// la persona sí trabaje.
+const BLANK_DEFAULT_DAYS: DefaultScheduleDay[] = WEEKDAY_ORDER.map((weekday) => {
+  const works = WORKWEEK_WEEKDAYS.includes(weekday);
+  return {
+    weekday,
+    works,
+    modality: works ? "presencial" : null,
+    time_ranges: works ? [{ start: "08:00", end: "17:00" }] : [],
+  };
+});
 
 interface DefaultScheduleEditorProps {
   employeeId: string;

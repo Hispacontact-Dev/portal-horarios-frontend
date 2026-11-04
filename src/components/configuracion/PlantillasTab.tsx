@@ -101,8 +101,8 @@ export function PlantillasTab() {
       )}
 
       <span className="text-[11px] leading-relaxed text-[var(--neutral-700)]">
-        Una plantilla admite más de un bloque de horario para cubrir jornadas partidas. Solo cubre
-        de lunes a viernes, igual que el resto de Horarios.
+        Una plantilla admite más de un bloque de horario para cubrir jornadas partidas. Cubre de
+        lunes a domingo: el fin de semana solo entra si se marca el sábado o el domingo.
       </span>
 
       {draft !== null && (

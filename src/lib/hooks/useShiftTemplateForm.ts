@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createShiftTemplate, updateShiftTemplate } from "@/lib/api/shiftTemplates";
 import { ApiError } from "@/lib/api/client";
 import { classifyError, type ClassifiedError } from "@/lib/api/errors";
+import { WORKWEEK_WEEKDAYS } from "@/lib/utils/constants";
 import type { ShiftTemplate } from "@/types/shiftTemplate";
 import type { TimeRange, Weekday } from "@/types/schedule";
 
@@ -30,7 +31,7 @@ interface ShiftTemplateFormState {
 
 const DEFAULT_VALUES: ShiftTemplateFormValues = {
   name: "",
-  weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+  weekdays: [...WORKWEEK_WEEKDAYS],
   blocks: [{ start: "08:00", end: "17:00" }],
 };
 

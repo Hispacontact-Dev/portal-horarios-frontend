@@ -8,19 +8,13 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { EmployeeStatusBadge } from "@/components/employees/EmployeeStatusBadge";
 import { getInitials } from "@/components/employees/EmployeesView";
 import { useEmployeeDefaultSchedule } from "@/lib/hooks/useEmployeeDefaultSchedule";
-import { WEEKDAY_LABELS } from "@/components/schedules/DefaultScheduleEditor";
-import { POSITION_LABELS, ROUTE_PATHS } from "@/lib/utils/constants";
-import type { Weekday } from "@/types/schedule";
+import {
+  POSITION_LABELS,
+  ROUTE_PATHS,
+  WEEKDAY_ORDER,
+  WEEKDAY_SHORT_LABELS,
+} from "@/lib/utils/constants";
 import type { Employee } from "@/types/employee";
-
-const WEEKDAYS: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-const DAY_ABBR: Record<Weekday, string> = {
-  monday: "L",
-  tuesday: "M",
-  wednesday: "X",
-  thursday: "J",
-  friday: "V",
-};
 const MODALITY_COLOR: Record<"presencial" | "virtual", string> = {
   presencial: "var(--accent)",
   virtual: "#c7dbf3",
@@ -73,14 +67,14 @@ export function EmployeeDetail({ employee, onClose }: { employee: Employee; onCl
         {schedule.status === "empty" && <EmptyState message="Sin horario habitual definido." />}
 
         {schedule.status === "success" && (
-          <div className="grid grid-cols-5 gap-1">
-            {WEEKDAYS.map((weekday, j) => {
+          <div className="grid grid-cols-7 gap-1">
+            {WEEKDAY_ORDER.map((weekday, j) => {
               const day = schedule.data.days.find((d) => d.weekday === weekday);
               const active = day?.works && day.modality;
               const range = day?.time_ranges[0];
               return (
                 <div key={weekday} className="flex flex-col items-center gap-1">
-                  <span className="text-[10px] uppercase tracking-[.08em] text-[var(--neutral-700)]">{DAY_ABBR[weekday]}</span>
+                  <span className="text-[10px] uppercase tracking-[.08em] text-[var(--neutral-700)]">{WEEKDAY_SHORT_LABELS[weekday]}</span>
                   <div
                     className="anim-up h-11 w-full border border-[#8fadcc]"
                     style={{ background: active ? MODALITY_COLOR[day!.modality!] : OFF, animationDelay: `${0.1 + j * 0.05}s` }}

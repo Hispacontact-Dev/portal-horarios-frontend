@@ -110,7 +110,9 @@ const ABSENCE_STRIPES: CSSProperties = {
   backgroundImage: "repeating-linear-gradient(45deg, #cfcfd1 0 4px, transparent 4px 8px)",
 };
 
-export function statusVisualProps(status: RangeRuntimeStatus | "sin_horario" | "fuera_de_rango"): StatusVisualProps {
+export function statusVisualProps(
+  status: RangeRuntimeStatus | "sin_horario" | "fuera_de_rango" | "descanso",
+): StatusVisualProps {
   switch (status) {
     case "en_curso":
       return { className: "border border-[#6f93b8] bg-[var(--accent)] text-[var(--bg)]" };
@@ -122,6 +124,10 @@ export function statusVisualProps(status: RangeRuntimeStatus | "sin_horario" | "
       return { className: "border border-[var(--divider)] text-[#3b3b3d]", style: ABSENCE_STRIPES };
     case "fuera_de_rango":
       return { className: "border border-[var(--divider)] text-[var(--neutral-700)]" };
+    // El descanso de fin de semana va sin las rayas de ausencia: no es una ausencia que alguien
+    // tenga que revisar, es la semana normal.
+    case "descanso":
+      return { className: "border border-[var(--divider)] bg-[#f1f1f2] text-[var(--neutral-700)]" };
   }
 }
 

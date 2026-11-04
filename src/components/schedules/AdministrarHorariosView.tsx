@@ -8,8 +8,13 @@ import { useStatuses } from "@/lib/hooks/useStatuses";
 import { useBulkAssignment } from "@/lib/hooks/useBulkAssignment";
 import { uniqueAreaNames } from "@/lib/utils/catalog";
 import { toH } from "@/lib/utils/time";
-import { addWeeks, businessDaysBetween, mondayOf, toISODate } from "@/lib/utils/week";
-import { ROUTE_PATHS } from "@/lib/utils/constants";
+import { addWeeks, datesForWeekdays, mondayOf, toISODate } from "@/lib/utils/week";
+import {
+  ROUTE_PATHS,
+  WEEKDAY_ORDER,
+  WEEKDAY_SHORT_LABELS,
+  WORKWEEK_WEEKDAYS,
+} from "@/lib/utils/constants";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
 import type { Weekday } from "@/types/schedule";
@@ -30,13 +35,10 @@ const PLANTILLAS: Plantilla[] = [
   { id: "mj", name: "Media jornada", blocks: [["08:00", "13:00"]] },
 ];
 
-const WEEKDAY_OPTIONS: { value: Weekday; label: string }[] = [
-  { value: "monday", label: "L" },
-  { value: "tuesday", label: "M" },
-  { value: "wednesday", label: "X" },
-  { value: "thursday", label: "J" },
-  { value: "friday", label: "V" },
-];
+const WEEKDAY_OPTIONS: { value: Weekday; label: string }[] = WEEKDAY_ORDER.map((value) => ({
+  value,
+  label: WEEKDAY_SHORT_LABELS[value],
+}));
 
 const span = (b: [string, string]) => Math.max(0, toH(b[1]) - toH(b[0]));
 
@@ -66,7 +68,8 @@ export function AdministrarHorariosView() {
   const [customStart, setCustomStart] = useState("07:00");
   const [customEnd, setCustomEnd] = useState("15:00");
   const [statusId, setStatusId] = useState("");
-  const [weekdays, setWeekdays] = useState<Set<Weekday>>(new Set(WEEKDAY_OPTIONS.map((w) => w.value)));
+  // Arranca en lunes a viernes: el fin de semana se marca solo cuando se va a programar.
+  const [weekdays, setWeekdays] = useState<Set<Weekday>>(new Set(WORKWEEK_WEEKDAYS));
 
   const nextMonday = mondayOf(addWeeks(new Date(), 1));
   const [desde, setDesde] = useState(toISODate(nextMonday));
@@ -100,7 +103,7 @@ export function AdministrarHorariosView() {
     const start = new Date(`${desde}T00:00:00`);
     const end = new Date(`${hasta}T00:00:00`);
     if (start > end) return [];
-    return businessDaysBetween(start, end, weekdays);
+    return datesForWeekdays(start, end, weekdays);
   }, [desde, hasta, weekdays]);
 
   const horasPorSemana = isShift ? bloques.reduce((a, b) => a + span(b), 0) * weekdays.size : 0;

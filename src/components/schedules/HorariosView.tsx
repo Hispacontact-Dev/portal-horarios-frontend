@@ -13,6 +13,7 @@ import { applyScheduleFilters } from "@/lib/utils/scheduleFilters";
 import { statusOptionsFromDays, uniqueAreaNames } from "@/lib/utils/catalog";
 import { toH } from "@/lib/utils/time";
 import { ROUTE_PATHS } from "@/lib/utils/constants";
+import { isWeekend } from "@/lib/utils/week";
 import {
   nowAsDecimalHour,
   rangeProgressPct,
@@ -37,11 +38,12 @@ interface HorariosViewProps {
   onToday: () => void;
 }
 
-const LEGEND: { status: RangeRuntimeStatus | "sin_horario"; label: string }[] = [
+const LEGEND: { status: RangeRuntimeStatus | "sin_horario" | "descanso"; label: string }[] = [
   { status: "programado", label: "Programado" },
   { status: "en_curso", label: "En curso" },
   { status: "finalizado", label: "Finalizado" },
   { status: "sin_horario", label: "Sin horario (vacaciones, licencia, permiso…)" },
+  { status: "descanso", label: "Descanso (fin de semana)" },
 ];
 
 function formatDayHeader(date: string): string {
@@ -65,6 +67,9 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
   const hasFilters = !!(filters.employee_id || filters.area_name || filters.status_id);
 
   const weekdays = employees[0]?.days ?? [];
+  // La grilla se adapta a los días que devuelva el backend: cinco (lunes a viernes) o siete.
+  const gridStyle = { gridTemplateColumns: `220px repeat(${weekdays.length || 5}, minmax(0, 1fr))` };
+  const gridMinWidth = 220 + (weekdays.length || 5) * 152;
   const serverToday = state.status === "success" || state.status === "empty" ? state.data.server_today : undefined;
   const todayDate = offset === 0 ? serverToday : undefined;
   const managedEmployee = employees.find((e) => e.employee_id === managedEmployeeId);
@@ -208,13 +213,17 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
 
             {filtered.length > 0 && (
               <div className="overflow-x-auto">
-                <div className="min-w-[980px]">
-                  <div className="grid grid-cols-[220px_repeat(5,minmax(0,1fr))] gap-x-2 border-b border-[rgba(29,31,32,.35)]">
+                <div style={{ minWidth: `${gridMinWidth}px` }}>
+                  <div className="grid gap-x-2 border-b border-[rgba(29,31,32,.35)]" style={gridStyle}>
                     <div className="py-2.5 text-[11px] uppercase tracking-[.1em] text-[var(--neutral-700)]">Persona</div>
                     {weekdays.map((day, i) => {
                       const isToday = day.date === todayDate;
+                      const weekend = isWeekend(day.date);
                       return (
-                        <div key={day.date} className={`flex items-center justify-between gap-1.5 px-2.5 py-2 ${isToday ? "bg-[var(--accent-100)]" : ""}`}>
+                        <div
+                          key={day.date}
+                          className={`flex items-center justify-between gap-1.5 px-2.5 py-2 ${isToday ? "bg-[var(--accent-100)]" : weekend ? "bg-[#f1f1f2] text-[var(--neutral-700)]" : ""}`}
+                        >
                           <span className="font-heading whitespace-nowrap text-sm font-semibold capitalize leading-tight">{formatDayHeader(day.date)}</span>
                           {isToday && <span className="bg-[var(--accent-100)] px-2 py-0.5 text-[11px] text-[var(--accent-800)] ring-1 ring-[var(--accent)]">Hoy</span>}
                           <span className="sr-only">{i}</span>
@@ -226,8 +235,8 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
                   {filtered.map((employee, ri) => (
                     <div
                       key={employee.employee_id}
-                      className="anim-in grid grid-cols-[220px_repeat(5,minmax(0,1fr))] gap-x-2 border-b border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)]"
-                      style={{ animationDelay: `${0.35 + Math.min(ri, 10) * 0.04}s` }}
+                      className="anim-in grid gap-x-2 border-b border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)]"
+                      style={{ ...gridStyle, animationDelay: `${0.35 + Math.min(ri, 10) * 0.04}s` }}
                     >
                       <div className="flex min-w-0 items-center justify-between gap-2 py-2.5">
                         <Link href={`${ROUTE_PATHS.empleados}/${employee.employee_id}`} className="flex min-w-0 items-center gap-2.5">
@@ -253,12 +262,21 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
                         const isToday = day.date === todayDate;
                         const delay = 0.4 + Math.min(ri, 10) * 0.04 + di * 0.03;
                         const hiddenByStatusFilter = filters.status_id !== null && day.status_id !== filters.status_id;
+                        const weekend = isWeekend(day.date);
                         return (
-                          <div key={day.date} className={`flex flex-col justify-center gap-1 px-1.5 py-2 ${isToday ? "bg-[rgba(238,246,255,.7)]" : ""}`}>
+                          <div
+                            key={day.date}
+                            className={`flex flex-col justify-center gap-1 px-1.5 py-2 ${isToday ? "bg-[rgba(238,246,255,.7)]" : weekend ? "bg-[rgba(241,241,242,.55)]" : ""}`}
+                          >
                             {hiddenByStatusFilter ? (
                               <ScheduleRangeBlock label="—" status="sin_horario" title={`${employee.full_name} · no coincide con el filtro de Estado`} delay={delay} />
                             ) : day.time_ranges.length === 0 ? (
-                              <ScheduleRangeBlock label={day.status_name} status="sin_horario" title={`${employee.full_name} · ${day.status_name}`} delay={delay} />
+                              <ScheduleRangeBlock
+                                label={day.status_name}
+                                status={weekend ? "descanso" : "sin_horario"}
+                                title={`${employee.full_name} · ${day.status_name}`}
+                                delay={delay}
+                              />
                             ) : (
                               day.time_ranges.map((range, i) => {
                                 const status = isToday && nowHour !== null ? rangeRuntimeStatus(range, nowHour) : "programado";

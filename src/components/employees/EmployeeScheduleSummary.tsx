@@ -6,12 +6,9 @@ import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useEmployeeDefaultSchedule } from "@/lib/hooks/useEmployeeDefaultSchedule";
-import { WEEKDAY_LABELS } from "@/components/schedules/DefaultScheduleEditor";
 import { toH } from "@/lib/utils/time";
-import { ROUTE_PATHS } from "@/lib/utils/constants";
-import type { Weekday } from "@/types/schedule";
+import { ROUTE_PATHS, WEEKDAY_LABELS, WEEKDAY_ORDER } from "@/lib/utils/constants";
 
-const WEEKDAYS: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 const START = 6;
 const SPAN = 16;
 const TICKS = ["06", "10", "14", "18", "22"];
@@ -70,7 +67,7 @@ export function EmployeeScheduleSummary({ employeeId }: { employeeId: string }) 
           </div>
 
           <div className="flex flex-col">
-            {WEEKDAYS.map((weekday, j) => {
+            {WEEKDAY_ORDER.map((weekday, j) => {
               const day = state.data.days.find((d) => d.weekday === weekday);
               const ranges = day?.works && day.modality ? day.time_ranges : [];
               const off = ranges.length === 0;

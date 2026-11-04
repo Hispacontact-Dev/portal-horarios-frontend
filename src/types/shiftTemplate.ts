@@ -1,8 +1,8 @@
 import type { TimeRange, Weekday } from "@/types/schedule";
 
 // Corresponde al catálogo de Plantillas de turno (specs/010-catalogos-cargos-plantillas-festivos).
-// Solo cubre lunes a viernes porque todo el dominio de Horarios hoy no soporta fin de semana
-// (ver src/types/schedule.ts Weekday). El backend lo expone en /shift-templates desde su
+// Cubre de lunes a domingo, igual que el resto de Horarios (ver src/types/schedule.ts Weekday):
+// el fin de semana entra solo en las plantillas que lo marcan. El backend lo expone en /shift-templates desde su
 // specs/009-catalogos-configuracion.
 
 export interface ShiftTemplate {

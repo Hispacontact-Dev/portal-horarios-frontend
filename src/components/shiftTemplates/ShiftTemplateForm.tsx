@@ -13,15 +13,13 @@ import {
 } from "@/lib/hooks/useShiftTemplateForm";
 import type { ShiftTemplate } from "@/types/shiftTemplate";
 import type { Weekday } from "@/types/schedule";
+import { WEEKDAY_ORDER, WEEKDAY_SHORT_LABELS } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 
-const WEEKDAY_OPTIONS: { value: Weekday; label: string }[] = [
-  { value: "monday", label: "L" },
-  { value: "tuesday", label: "M" },
-  { value: "wednesday", label: "X" },
-  { value: "thursday", label: "J" },
-  { value: "friday", label: "V" },
-];
+const WEEKDAY_OPTIONS: { value: Weekday; label: string }[] = WEEKDAY_ORDER.map((value) => ({
+  value,
+  label: WEEKDAY_SHORT_LABELS[value],
+}));
 
 interface ShiftTemplateFormProps {
   mode: ShiftTemplateFormMode;

@@ -1,6 +1,15 @@
 import type { EmployeePosition } from "@/types/employee";
 
-export type Weekday = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+// La semana del portal va de lunes a domingo: el fin de semana normalmente es descanso, pero hay
+// sábados y domingos que se trabajan y deben poder programarse.
+export type Weekday =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
 
 export interface TimeRange {
   start: string;

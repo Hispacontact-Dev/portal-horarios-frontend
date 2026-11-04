@@ -2,7 +2,7 @@ import { rangeStatusLabel, statusVisualProps, type RangeRuntimeStatus } from "@/
 
 interface ScheduleRangeBlockProps {
   label: string;
-  status: RangeRuntimeStatus | "sin_horario";
+  status: RangeRuntimeStatus | "sin_horario" | "descanso";
   progressPct?: number;
   title?: string;
   delay?: number;
@@ -19,7 +19,7 @@ export function ScheduleRangeBlock({ label, status, progressPct = 0, title, dela
       style={{ ...visual.style, animationDelay: `${delay}s` }}
     >
       <span className="whitespace-nowrap text-xs font-medium tabular-nums">{label}</span>
-      {status !== "sin_horario" && (
+      {status !== "sin_horario" && status !== "descanso" && (
         <span className="flex items-center gap-[5px] whitespace-nowrap text-[10px] uppercase tracking-[.08em]">
           {live && (
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--bg)]" style={{ animation: "pulseDot 1.6s infinite" }} />

@@ -1,16 +1,8 @@
 import { Button } from "@/components/ui/Button";
 import { RoleGate } from "@/components/auth/RoleGate";
 import type { ShiftTemplate } from "@/types/shiftTemplate";
-import type { TimeRange, Weekday } from "@/types/schedule";
-
-const WEEKDAY_ORDER: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-const WEEKDAY_LABELS: Record<Weekday, string> = {
-  monday: "L",
-  tuesday: "M",
-  wednesday: "X",
-  thursday: "J",
-  friday: "V",
-};
+import type { TimeRange } from "@/types/schedule";
+import { WEEKDAY_ORDER, WEEKDAY_SHORT_LABELS } from "@/lib/utils/constants";
 
 const HOUR_TICKS = ["00", "04", "08", "12", "16", "20", "24"];
 
@@ -95,7 +87,7 @@ export function ShiftTemplateList({
                       : "border-[var(--divider)] text-[var(--neutral-700)]"
                   }`}
                 >
-                  {WEEKDAY_LABELS[day]}
+                  {WEEKDAY_SHORT_LABELS[day]}
                 </span>
               );
             })}
