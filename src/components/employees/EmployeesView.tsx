@@ -7,7 +7,8 @@ import { RoleGate } from "@/components/auth/RoleGate";
 import { EmployeeStatusBadge } from "@/components/employees/EmployeeStatusBadge";
 import { EmployeeDetail } from "@/components/employees/EmployeeDetail";
 import { downloadCsv } from "@/lib/utils/csv";
-import { POSITION_LABELS, ROUTE_PATHS } from "@/lib/utils/constants";
+import { countEmployeesByPositionName as countByPositionName } from "@/lib/utils/catalog";
+import { ROUTE_PATHS } from "@/lib/utils/constants";
 import type { Employee } from "@/types/employee";
 
 const PER_PAGE = 10;
@@ -30,7 +31,7 @@ function exportToCsv(employees: Employee[]) {
     ["Nombre", "Cargo", "Área", "Estado", "Activo"],
     employees.map((employee) => [
       employee.full_name,
-      POSITION_LABELS[employee.position],
+      employee.position_name,
       employee.area_name,
       employee.status_name,
       employee.is_active ? "Activo" : "Inactivo",
@@ -54,7 +55,7 @@ export function EmployeesView({ employees }: { employees: Employee[] }) {
     return employees.filter(
       (e) =>
         (!query ||
-          `${e.full_name} ${POSITION_LABELS[e.position]} ${e.area_name}`.toLowerCase().includes(query)) &&
+          `${e.full_name} ${e.position_name} ${e.area_name}`.toLowerCase().includes(query)) &&
         (!areaFilter || e.area_name === areaFilter) &&
         (!statusFilter || e.status_name === statusFilter) &&
         (activeFilter === "todos" || (activeFilter === "activos") === e.is_active),
@@ -81,20 +82,23 @@ export function EmployeesView({ employees }: { employees: Employee[] }) {
 
   const total = employees.length;
   const activeCount = employees.filter((e) => e.is_active).length;
-  const countByPosition = (position: Employee["position"]) =>
-    employees.filter((e) => e.position === position).length;
   const pct = (n: number) => (total ? `${Math.round((n / total) * 100)}%` : "0%");
 
-  const practicantes = countByPosition("practicante");
+  // El Cargo ya no es una lista fija: el KPI se arma con los cargos que realmente
+  // tienen los empleados cargados, sin asumir cuáles existen.
+  const positionCounts = countByPositionName(employees);
+  const topPositions = [...positionCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 2);
   const kpis = [
     { label: "Total empleados", value: total, sub: "registrados", pct: "100%" },
     { label: "Activos", value: activeCount, sub: `de ${total}`, pct: pct(activeCount) },
     { label: "Inactivos", value: total - activeCount, sub: `de ${total}`, pct: pct(total - activeCount) },
     {
-      label: "Practicantes",
-      value: practicantes,
-      sub: `Líderes ${countByPosition("lider")} · RH ${countByPosition("recursos_humanos")}`,
-      pct: pct(practicantes),
+      label: "Cargos distintos",
+      value: positionCounts.size,
+      sub: topPositions.length ? topPositions.map(([name, count]) => `${name} ${count}`).join(" · ") : "sin cargos",
+      pct: topPositions.length ? pct(topPositions[0][1]) : "0%",
     },
   ];
 
@@ -246,7 +250,7 @@ export function EmployeesView({ employees }: { employees: Employee[] }) {
                         </Link>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-3">{POSITION_LABELS[e.position]}</td>
+                    <td className="whitespace-nowrap px-3">{e.position_name}</td>
                     <td className="whitespace-nowrap px-3 text-[#3b3b3d]">{e.area_name}</td>
                     <td className="px-3">
                       <EmployeeStatusBadge statusName={e.status_name} />

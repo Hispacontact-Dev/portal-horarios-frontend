@@ -9,10 +9,11 @@ import { RenameConfirmModal } from "@/components/employees/RenameConfirmModal";
 import { getInitials } from "@/components/employees/EmployeesView";
 import { useEmployeeForm } from "@/lib/hooks/useEmployeeForm";
 import { useAreas } from "@/lib/hooks/useAreas";
+import { usePositions } from "@/lib/hooks/usePositions";
 import { selectableOptions } from "@/lib/utils/catalog";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { POSITION_LABELS, ROUTE_PATHS } from "@/lib/utils/constants";
-import type { Employee, EmployeePosition } from "@/types/employee";
+import { ROUTE_PATHS } from "@/lib/utils/constants";
+import type { Employee } from "@/types/employee";
 
 export function EmployeeEditView({
   employee,
@@ -25,6 +26,7 @@ export function EmployeeEditView({
   const [pendingRename, setPendingRename] = useState<{ currentName: string; newName: string } | null>(null);
 
   const { status: areasStatus, areas, error: areasError } = useAreas();
+  const { status: positionsStatus, positions, error: positionsError } = usePositions();
 
   const { values, isSubmitting, error, setField, submit } = useEmployeeForm({
     mode: "edit",
@@ -38,17 +40,22 @@ export function EmployeeEditView({
 
   const original = {
     full_name: employee.full_name,
-    position: employee.position,
+    position_id: employee.position_id ?? "",
     area_id: employee.area_id ?? "",
   };
   const dirty =
     values.full_name !== original.full_name ||
-    values.position !== original.position ||
+    values.position_id !== original.position_id ||
     values.area_id !== original.area_id;
   const nameEmpty = !values.full_name.trim();
-  const canSave = dirty && !nameEmpty && !isSubmitting;
+  const canSave = dirty && !nameEmpty && !!values.position_id && !isSubmitting;
   const areaOptions = selectableOptions(areas, employee.area_id ?? undefined);
   const areaName = areas.find((a) => a.id === values.area_id)?.name ?? employee.area_name;
+  // Un Cargo ya deshabilitado sigue ofreciéndose si es el que tiene asignado el empleado,
+  // para no perderlo al guardar otro campo (mismo criterio que el Área).
+  const positionOptions = selectableOptions(positions, employee.position_id ?? undefined);
+  const positionName = positions.find((p) => p.id === values.position_id)?.name ?? employee.position_name;
+  const catalogError = areasStatus === "error" ? areasError : positionsStatus === "error" ? positionsError : null;
 
   useEffect(() => {
     if (!dirty) return;
@@ -66,7 +73,7 @@ export function EmployeeEditView({
 
   function discard() {
     setField("full_name", original.full_name);
-    setField("position", original.position);
+    setField("position_id", original.position_id);
     setField("area_id", original.area_id);
   }
 
@@ -101,7 +108,7 @@ export function EmployeeEditView({
                 {values.full_name.trim() || employee.full_name}
               </h1>
               <div className="flex flex-wrap items-center gap-2.5 text-[13px] text-[var(--neutral-700)]">
-                <span className="whitespace-nowrap">{POSITION_LABELS[values.position]}</span>
+                <span className="whitespace-nowrap">{positionName}</span>
                 <span>·</span>
                 <span className="whitespace-nowrap">{areaName}</span>
                 <span
@@ -166,13 +173,21 @@ export function EmployeeEditView({
                 </label>
                 <select
                   id="position"
-                  value={values.position}
-                  onChange={(event) => setField("position", event.target.value as EmployeePosition)}
+                  value={values.position_id}
+                  onChange={(event) => setField("position_id", event.target.value)}
+                  disabled={positionsStatus === "loading"}
                   className="input-ui w-full"
                 >
-                  <option value="lider">{POSITION_LABELS.lider}</option>
-                  <option value="recursos_humanos">{POSITION_LABELS.recursos_humanos}</option>
-                  <option value="practicante">{POSITION_LABELS.practicante}</option>
+                  {!values.position_id && (
+                    <option value="" disabled>
+                      Selecciona un cargo
+                    </option>
+                  )}
+                  {positionOptions.map((position) => (
+                    <option key={position.id} value={position.id}>
+                      {position.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -194,7 +209,7 @@ export function EmployeeEditView({
                 </select>
               </div>
             </div>
-            {areasStatus === "error" && <ErrorState message={areasError.message} />}
+            {catalogError && <ErrorState message={catalogError.message} />}
             {error && <p className="text-[13px] text-[var(--accent-800)]">{error.message}</p>}
           </section>
 

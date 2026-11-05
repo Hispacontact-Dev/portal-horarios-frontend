@@ -7,12 +7,11 @@ import { getInitials } from "@/components/employees/EmployeesView";
 import { useEmployeeForm } from "@/lib/hooks/useEmployeeForm";
 import { useAreas } from "@/lib/hooks/useAreas";
 import { useStatuses } from "@/lib/hooks/useStatuses";
+import { usePositions } from "@/lib/hooks/usePositions";
 import { selectableOptions } from "@/lib/utils/catalog";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { POSITION_LABELS, ROUTE_PATHS } from "@/lib/utils/constants";
-import type { Employee, EmployeePosition } from "@/types/employee";
-
-const POSITION_OPTIONS: EmployeePosition[] = ["lider", "recursos_humanos", "practicante"];
+import { ROUTE_PATHS } from "@/lib/utils/constants";
+import type { Employee } from "@/types/employee";
 
 export function EmployeeCreateView() {
   const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
@@ -32,29 +31,42 @@ function CreateForm({ onCreated }: { onCreated: (employee: Employee) => void }) 
 
   const { status: areasStatus, areas, error: areasError } = useAreas();
   const { status: statusesStatus, statuses, error: statusesError } = useStatuses();
+  const { status: positionsStatus, positions, error: positionsError } = usePositions();
   const [tried, setTried] = useState(false);
 
-  const catalogsLoading = areasStatus === "loading" || statusesStatus === "loading";
-  const catalogsError = areasStatus === "error" ? areasError : statusesStatus === "error" ? statusesError : null;
+  const catalogsLoading =
+    areasStatus === "loading" || statusesStatus === "loading" || positionsStatus === "loading";
+  const catalogsError =
+    areasStatus === "error"
+      ? areasError
+      : statusesStatus === "error"
+        ? statusesError
+        : positionsStatus === "error"
+          ? positionsError
+          : null;
 
   const areaOptions = selectableOptions(areas, undefined);
   const statusOptions = selectableOptions(statuses, undefined);
+  const positionOptions = selectableOptions(positions, undefined);
   const selectedArea = areas.find((a) => a.id === values.area_id);
   const selectedStatus = statuses.find((s) => s.id === values.status_id);
+  const selectedPosition = positions.find((p) => p.id === values.position_id);
 
   const nameValid = values.full_name.trim().split(/\s+/).filter(Boolean).length >= 2;
   const areaValid = !!values.area_id;
+  const positionValid = !!values.position_id;
   const statusValid = !!values.status_id;
-  const doneCount = [nameValid, areaValid, statusValid].filter(Boolean).length;
+  const doneCount = [nameValid, areaValid, positionValid, statusValid].filter(Boolean).length;
 
   const nameError = tried && !nameValid ? (values.full_name.trim() ? "Ingresa nombre y apellido." : "El nombre es obligatorio.") : undefined;
   const areaError = tried && !areaValid ? "Selecciona un área." : undefined;
+  const positionError = tried && !positionValid ? "Selecciona un cargo." : undefined;
   const statusError = tried && !statusValid ? "Selecciona un estado." : undefined;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setTried(true);
-    if (!nameValid || !areaValid || !statusValid) return;
+    if (!nameValid || !areaValid || !positionValid || !statusValid) return;
     void submit(values);
   }
 
@@ -140,16 +152,17 @@ function CreateForm({ onCreated }: { onCreated: (employee: Employee) => void }) 
 
               <div>
                 <span className="mb-[5px] block text-xs text-[rgba(29,31,32,.7)]">Cargo *</span>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-1.5">
-                  {POSITION_OPTIONS.map((position) => (
+                <div role="radiogroup" aria-label="Cargo" className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-1.5">
+                  {positionOptions.map((position) => (
                     <OptionButton
-                      key={position}
-                      active={values.position === position}
-                      onClick={() => setField("position", position)}
-                      title={POSITION_LABELS[position]}
+                      key={position.id}
+                      active={values.position_id === position.id}
+                      onClick={() => setField("position_id", position.id)}
+                      title={position.name}
                     />
                   ))}
                 </div>
+                {positionError && <p className="mt-1 text-xs text-[var(--accent-800)]">{positionError}</p>}
               </div>
             </div>
 
@@ -193,7 +206,7 @@ function CreateForm({ onCreated }: { onCreated: (employee: Employee) => void }) 
                 {values.full_name.trim() || "Nombre del empleado"}
               </span>
               <span className="truncate text-[13px] text-[var(--neutral-700)]">
-                {POSITION_LABELS[values.position]} · {selectedArea?.name ?? "Área"}
+                {selectedPosition?.name ?? "Cargo"} · {selectedArea?.name ?? "Área"}
               </span>
             </div>
           </div>
@@ -205,13 +218,14 @@ function CreateForm({ onCreated }: { onCreated: (employee: Employee) => void }) 
           <div className="flex flex-col gap-2 border-t border-[var(--divider)] pt-3">
             <div className="flex justify-between text-xs tabular-nums text-[var(--neutral-700)]">
               <span>Campos obligatorios</span>
-              <span>{doneCount} / 3</span>
+              <span>{doneCount} / 4</span>
             </div>
             <div className="h-[3px] bg-[var(--accent-100)]">
-              <div className="h-full bg-[var(--accent)] transition-[width]" style={{ width: `${(doneCount / 3) * 100}%` }} />
+              <div className="h-full bg-[var(--accent)] transition-[width]" style={{ width: `${(doneCount / 4) * 100}%` }} />
             </div>
             {[
               ["Nombre y apellido", nameValid],
+              ["Cargo", positionValid],
               ["Área", areaValid],
               ["Estado inicial", statusValid],
             ].map(([label, done]) => (
@@ -266,7 +280,7 @@ function CreatedPanel({ employee, onAgain }: { employee: Employee; onAgain: () =
           <div className="flex min-w-0 flex-col gap-1.5">
             <h2 className="font-heading text-[28px] font-semibold leading-none">{employee.full_name}</h2>
             <div className="flex flex-wrap items-center gap-2.5 text-[13px] text-[var(--neutral-700)]">
-              <span className="whitespace-nowrap">{POSITION_LABELS[employee.position]}</span>
+              <span className="whitespace-nowrap">{employee.position_name}</span>
               <span>·</span>
               <span className="whitespace-nowrap">{employee.area_name}</span>
               <span

@@ -1,4 +1,3 @@
-import type { EmployeePosition } from "@/types/employee";
 
 // La semana del portal va de lunes a domingo: el fin de semana normalmente es descanso, pero hay
 // sábados y domingos que se trabajan y deben poder programarse.
@@ -44,7 +43,7 @@ export interface ScheduleDayEntry {
 export interface EmployeeWeekSchedule {
   employee_id: string;
   full_name: string;
-  position: EmployeePosition;
+  position: string;
   // El backend no incluye area_id en GET /schedules/week, solo area_name.
   area_name: string;
   is_active: boolean;

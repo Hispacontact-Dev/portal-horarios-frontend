@@ -4,13 +4,13 @@ import { useState } from "react";
 import { createEmployee, updateEmployee } from "@/lib/api/employees";
 import { ApiError } from "@/lib/api/client";
 import { classifyError, type ClassifiedError } from "@/lib/api/errors";
-import type { Employee, EmployeePosition } from "@/types/employee";
+import type { Employee } from "@/types/employee";
 
 export type EmployeeFormMode = "create" | "edit";
 
 export interface EmployeeFormValues {
   full_name: string;
-  position: EmployeePosition;
+  position_id: string;
   area_id: string;
   // Se precarga y se muestra en ambos modos, pero en modo "edit" no se envía en el
   // PATCH (EmployeeUpdate no tiene status_id). El cambio real de Estado en edición es
@@ -34,7 +34,7 @@ interface EmployeeFormState {
 
 const EMPTY_VALUES: EmployeeFormValues = {
   full_name: "",
-  position: "lider",
+  position_id: "",
   area_id: "",
   status_id: "",
 };
@@ -48,9 +48,9 @@ function valuesFromEmployee(employee?: Employee): EmployeeFormValues {
   if (!employee) return EMPTY_VALUES;
   return {
     full_name: employee.full_name,
-    position: employee.position,
     // El formulario siempre maneja strings: un empleado sin referencia al catálogo
     // arranca con el select vacío y obliga a elegir una opción.
+    position_id: employee.position_id ?? "",
     area_id: employee.area_id ?? "",
     status_id: employee.status_id ?? "",
   };
@@ -78,13 +78,13 @@ export function useEmployeeForm({ mode, employeeId, initialEmployee, onSuccess }
         mode === "create"
           ? await createEmployee({
               full_name: values.full_name,
-              position: values.position,
+              position_id: values.position_id,
               area_id: values.area_id,
               status_id: values.status_id,
             })
           : await updateEmployee(employeeId as string, {
               full_name: values.full_name,
-              position: values.position,
+              position_id: values.position_id,
               area_id: values.area_id,
             });
 

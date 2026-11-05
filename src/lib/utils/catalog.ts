@@ -31,6 +31,17 @@ export function countEmployeesByAreaId(employees: Employee[]): Map<string, numbe
   return counts;
 }
 
+// El Cargo del empleado llega como nombre resuelto del catálogo (no hay position_id en
+// todas las respuestas), así que el conteo agrupa por nombre, igual que uniqueAreaNames.
+export function countEmployeesByPositionName(employees: Employee[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  employees.forEach((employee) => {
+    if (!employee.position_name) return;
+    counts.set(employee.position_name, (counts.get(employee.position_name) ?? 0) + 1);
+  });
+  return counts;
+}
+
 interface SelectableEntry {
   id: string;
   is_enabled: boolean;

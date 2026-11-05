@@ -9,7 +9,6 @@ import { EmployeeStatusBadge } from "@/components/employees/EmployeeStatusBadge"
 import { getInitials } from "@/components/employees/EmployeesView";
 import { useEmployeeDefaultSchedule } from "@/lib/hooks/useEmployeeDefaultSchedule";
 import {
-  POSITION_LABELS,
   ROUTE_PATHS,
   WEEKDAY_ORDER,
   WEEKDAY_SHORT_LABELS,
@@ -39,7 +38,7 @@ export function EmployeeDetail({ employee, onClose }: { employee: Employee; onCl
       <div>
         <h2 className="font-heading text-[28px] font-semibold leading-[1.05]">{employee.full_name}</h2>
         <p className="mt-1 text-[13px] text-[var(--neutral-700)]">
-          {POSITION_LABELS[employee.position]} · {employee.area_name}
+          {employee.position_name} · {employee.area_name}
         </p>
       </div>
 

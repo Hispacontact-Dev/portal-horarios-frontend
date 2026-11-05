@@ -1,11 +1,13 @@
-export type EmployeePosition = "recursos_humanos" | "lider" | "practicante";
-
 export interface Employee {
   id: string;
   full_name: string;
-  position: EmployeePosition;
-  // `null` en un empleado creado antes del catálogo de Áreas/Estados, que todavía
+  // Texto legado del cargo que el backend sigue escribiendo para el índice de identidad;
+  // la UI muestra `position_name`, que se resuelve desde el catálogo de Cargos.
+  position: string;
+  // `null` en un empleado creado antes del catálogo de Áreas/Estados/Cargos, que todavía
   // no tiene la referencia (el backend los devuelve ausentes — spec 009 RNF-6).
+  position_id: string | null;
+  position_name: string;
   area_id: string | null;
   area_name: string;
   status_id: string | null;
@@ -21,13 +23,13 @@ export interface Employee {
 
 export interface EmployeeCreate {
   full_name: string;
-  position: EmployeePosition;
+  position_id: string;
   area_id: string;
   status_id: string;
 }
 
 export interface EmployeeUpdate {
   full_name?: string;
-  position?: EmployeePosition;
+  position_id?: string;
   area_id?: string;
 }
