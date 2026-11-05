@@ -38,10 +38,33 @@ const WEEKDAY_BY_JS_DAY: Record<number, Weekday> = {
   6: "saturday",
 };
 
+/** Día de la semana de una fecha suelta (`YYYY-MM-DD`). */
+export function weekdayOf(date: string): Weekday {
+  return WEEKDAY_BY_JS_DAY[parseISODate(date).getDay()];
+}
+
 /** True si la fecha (`YYYY-MM-DD`) cae sábado o domingo. */
 export function isWeekend(date: string): boolean {
   const jsDay = parseISODate(date).getDay();
   return jsDay === 0 || jsDay === 6;
+}
+
+/**
+ * Las fechas (`YYYY-MM-DD`) entre dos extremos, fin de semana incluido. Vacío si el rango está mal
+ * formado, que es como los editores detectan un rango inválido sin pegarle al backend.
+ */
+export function datesInRange(startDate: string, endDate: string): string[] {
+  if (!startDate || !endDate) return [];
+  const start = parseISODate(startDate);
+  const end = parseISODate(endDate);
+  if (start > end) return [];
+  const dates: string[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    dates.push(toISODate(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return dates;
 }
 
 /**

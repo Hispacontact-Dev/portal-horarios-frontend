@@ -34,13 +34,17 @@ function deriveTodayEntries(data: WeekScheduleResponse): TodayScheduleEntry[] {
 }
 
 export function useTodaySchedule() {
-  const { state: weekState, retry } = useWeekSchedule(0);
+  const { state: weekState, retry, refresh } = useWeekSchedule(0);
 
   if (weekState.status === "loading") {
-    return { state: { status: "loading", data: null, error: null } as AsyncResourceState<TodayScheduleEntry[]>, retry };
+    return {
+      state: { status: "loading", data: null, error: null } as AsyncResourceState<TodayScheduleEntry[]>,
+      retry,
+      refresh,
+    };
   }
   if (weekState.status === "error") {
-    return { state: weekState, retry };
+    return { state: weekState, retry, refresh };
   }
 
   const entries = deriveTodayEntries(weekState.data);
@@ -49,5 +53,5 @@ export function useTodaySchedule() {
       ? { status: "empty", data: entries, error: null, emptyReason: "no_data" }
       : { status: "success", data: entries, error: null };
 
-  return { state, retry };
+  return { state, retry, refresh };
 }

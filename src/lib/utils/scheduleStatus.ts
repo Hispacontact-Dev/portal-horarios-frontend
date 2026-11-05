@@ -49,6 +49,35 @@ export function rangeRuntimeStatus(range: TimeRange, nowHour: number): RangeRunt
   return "en_curso";
 }
 
+export type DayPhase = "past" | "today" | "future";
+
+/**
+ * Posición de un día (`YYYY-MM-DD`) respecto a hoy. La referencia es siempre el
+ * `server_today` del backend, no el reloj del navegador, y las claves de día se comparan
+ * como strings — mismo criterio que `formatDayLabel` en `lib/utils/date.ts`.
+ */
+export function dayPhase(date: string, serverToday: string | undefined): DayPhase {
+  if (!serverToday) return "future";
+  if (date < serverToday) return "past";
+  if (date === serverToday) return "today";
+  return "future";
+}
+
+/**
+ * Estado de una franja dentro de la semana: un día que ya pasó la muestra finalizada y uno
+ * futuro programada. Solo el día en curso se clasifica contra la hora actual, que es lo
+ * único que `rangeRuntimeStatus` puede resolver por sí solo.
+ */
+export function weekRangeStatus(
+  range: TimeRange,
+  phase: DayPhase,
+  nowHour: number | null,
+): RangeRuntimeStatus {
+  if (phase === "past") return "finalizado";
+  if (phase === "today" && nowHour !== null) return rangeRuntimeStatus(range, nowHour);
+  return "programado";
+}
+
 export function rangeProgressPct(range: TimeRange, nowHour: number): number {
   const start = timeToDecimalHour(range.start);
   let end = timeToDecimalHour(range.end);

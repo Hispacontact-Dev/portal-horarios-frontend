@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/Input";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { SuccessState } from "@/components/ui/SuccessState";
 import { useStatuses } from "@/lib/hooks/useStatuses";
-import { useDateRangeStatusChange } from "@/lib/hooks/useDateRangeStatusChange";
+import { useNovedadSync } from "@/lib/hooks/useNovedadSync";
 import { useSuccessFlag } from "@/lib/hooks/useSuccessFlag";
+import { formatDayKey } from "@/lib/utils/date";
+import { datesInRange } from "@/lib/utils/week";
 
 interface DateRangeStatusEditorProps {
   employeeId: string;
@@ -17,25 +19,30 @@ interface DateRangeStatusEditorProps {
 
 function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEditorProps) {
   const { statuses } = useStatuses();
-  const { state, submit, overlappingDates } = useDateRangeStatusChange();
+  const { state, submit } = useNovedadSync();
   const successFlag = useSuccessFlag();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [statusId, setStatusId] = useState("");
+  const [skipped, setSkipped] = useState<string[]>([]);
 
   const isSubmitting = state.status === "submitting";
-  const isConflict = state.status === "error" && state.error.kind === "conflict";
+  const targetDates = datesInRange(startDate, endDate);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     successFlag.hide();
+    setSkipped([]);
     const result = await submit({
-      employee_id: employeeId,
-      start_date: startDate,
-      end_date: endDate,
-      status_id: statusId,
+      employeeId,
+      statusId,
+      targetDates,
+      removeDates: [],
+      knownUpdatedAt: {},
     });
-    if (result) {
+    if (!result) return;
+    setSkipped(result.skipped.map((entry) => formatDayKey(entry.date)));
+    if (result.applied > 0) {
       successFlag.show();
       onSaved();
     }
@@ -65,7 +72,7 @@ function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEdito
 
       <label className="flex flex-col text-sm text-gray-700">
         Hasta
-        <Input type="date" value={endDate} onChange={handleEndDateChange} required />
+        <Input type="date" value={endDate} min={startDate} onChange={handleEndDateChange} required />
       </label>
 
       <label className="flex flex-col text-sm text-gray-700">
@@ -89,20 +96,16 @@ function DateRangeStatusEditorForm({ employeeId, onSaved }: DateRangeStatusEdito
 
       {successFlag.visible && <SuccessState message="Cambios guardados" />}
 
-      {state.status === "error" && (
-        <ErrorState
-          message={
-            isConflict
-              ? `Este rango se superpone con días ya asignados${
-                  overlappingDates.length > 0 ? `: ${overlappingDates.join(", ")}` : ""
-                }. Resolvé el conflicto antes de continuar.`
-              : state.error.message
-          }
-        />
+      {skipped.length > 0 && (
+        <p className="text-sm text-gray-700">
+          {skipped.length} día(s) quedaron sin cambiar porque ya tenían una novedad asignada: {skipped.join(", ")}.
+        </p>
       )}
 
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Guardando..." : "Asignar a todo el rango"}
+      {state.status === "error" && <ErrorState message={state.error.message} />}
+
+      <Button type="submit" disabled={isSubmitting || targetDates.length === 0 || statusId === ""}>
+        {isSubmitting ? "Guardando..." : `Asignar al rango · ${targetDates.length} día(s)`}
       </Button>
     </form>
   );

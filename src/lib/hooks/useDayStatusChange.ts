@@ -6,7 +6,7 @@ import type { DayStatusChangeInput, ScheduleDayEntry } from "@/types/schedule";
 
 type DayStatusChangeArgs =
   | { type: "set"; input: DayStatusChangeInput }
-  | { type: "revert"; employeeId: string; date: string; expectedUpdatedAt: string };
+  | { type: "revert"; employeeId: string; date: string; expectedUpdatedAt: string | null };
 
 async function submitDayStatusChange(args: DayStatusChangeArgs): Promise<ScheduleDayEntry> {
   if (args.type === "set") return setDayStatus(args.input);
@@ -20,7 +20,7 @@ export function useDayStatusChange() {
     return action.submit({ type: "set", input });
   }
 
-  function revert(employeeId: string, date: string, expectedUpdatedAt: string) {
+  function revert(employeeId: string, date: string, expectedUpdatedAt: string | null) {
     return action.submit({ type: "revert", employeeId, date, expectedUpdatedAt });
   }
 

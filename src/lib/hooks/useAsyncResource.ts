@@ -75,6 +75,17 @@ export function useAsyncResource<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, attempt]);
 
+  /**
+   * Vuelve a pedir el recurso sin importar el estado actual. Es lo que hay que usar después de una
+   * escritura exitosa: `retry()` existe para reintentar un fallo y se corta solo si el estado no es
+   * de error, así que no sirve para refrescar — RF-5 de la spec 006 (los editores deben recargar la
+   * vista al guardar).
+   */
+  function refresh() {
+    setRetryCount(0);
+    setAttempt((value) => value + 1);
+  }
+
   function retry() {
     if (state.status !== "error") return;
     if (retryCount >= MAX_RETRY_COUNT) {
@@ -88,5 +99,5 @@ export function useAsyncResource<T>(
     setAttempt((value) => value + 1);
   }
 
-  return { state, retry };
+  return { state, retry, refresh };
 }

@@ -216,7 +216,7 @@ export function EmployeeEditView({
           <EmployeeScheduleSummary employeeId={employee.id} />
         </div>
 
-        <EmployeeStatusPanel key={employee.status_id} employee={employee} onDone={onEmployeeChange} />
+        <EmployeeStatusPanel key={employee.status_id} employee={employee} onDone={onEmployeeChange} onFlash={flash} />
       </div>
 
       {dirty && (

@@ -15,11 +15,13 @@ import { toH } from "@/lib/utils/time";
 import { ROUTE_PATHS } from "@/lib/utils/constants";
 import { isWeekend } from "@/lib/utils/week";
 import {
+  dayPhase,
   nowAsDecimalHour,
   rangeProgressPct,
   rangeRuntimeStatus,
   rangeStatusLabel,
   statusVisualProps,
+  weekRangeStatus,
   type RangeRuntimeStatus,
 } from "@/lib/utils/scheduleStatus";
 import { Spinner } from "@/components/ui/Spinner";
@@ -30,6 +32,7 @@ import type { EmployeeWeekSchedule, WeekScheduleResponse } from "@/types/schedul
 interface HorariosViewProps {
   state: AsyncResourceState<WeekScheduleResponse>;
   retry: () => void;
+  refresh: () => void;
   offset: number;
   canGoPrev: boolean;
   canGoNext: boolean;
@@ -56,7 +59,17 @@ function formatWeekLabel(weekStart: string, weekEnd: string): string {
   return `${start} – ${end}`;
 }
 
-export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPrev, onNext, onToday }: HorariosViewProps) {
+export function HorariosView({
+  state,
+  retry,
+  refresh,
+  offset,
+  canGoPrev,
+  canGoNext,
+  onPrev,
+  onNext,
+  onToday,
+}: HorariosViewProps) {
   const [managedEmployeeId, setManagedEmployeeId] = useState<string | null>(null);
   const now = useNowTick();
   const nowHour = now ? nowAsDecimalHour(now) : null;
@@ -260,6 +273,7 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
                       </div>
                       {employee.days.map((day, di) => {
                         const isToday = day.date === todayDate;
+                        const phase = dayPhase(day.date, serverToday);
                         const delay = 0.4 + Math.min(ri, 10) * 0.04 + di * 0.03;
                         const hiddenByStatusFilter = filters.status_id !== null && day.status_id !== filters.status_id;
                         const weekend = isWeekend(day.date);
@@ -279,7 +293,7 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
                               />
                             ) : (
                               day.time_ranges.map((range, i) => {
-                                const status = isToday && nowHour !== null ? rangeRuntimeStatus(range, nowHour) : "programado";
+                                const status = weekRangeStatus(range, phase, nowHour);
                                 const pct = isToday && nowHour !== null ? rangeProgressPct(range, nowHour) : 0;
                                 return (
                                   <ScheduleRangeBlock
@@ -321,7 +335,7 @@ export function HorariosView({ state, retry, offset, canGoPrev, canGoNext, onPre
         isOpen={managedEmployeeId !== null}
         employee={managedEmployee}
         onClose={() => setManagedEmployeeId(null)}
-        onSaved={retry}
+        onSaved={refresh}
       />
     </>
   );

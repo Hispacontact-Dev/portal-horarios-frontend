@@ -24,7 +24,7 @@ function HorariosPageContent() {
   const searchParams = useSearchParams();
   const offset = offsetFromParam(searchParams.get("semana"));
 
-  const { state, retry } = useWeekSchedule(offset);
+  const { state, retry, refresh } = useWeekSchedule(offset);
 
   function goToOffset(nextOffset: number) {
     const clamped = Math.min(MAX_OFFSET, Math.max(MIN_OFFSET, nextOffset));
@@ -36,6 +36,7 @@ function HorariosPageContent() {
     <HorariosView
       state={state}
       retry={retry}
+      refresh={refresh}
       offset={offset}
       canGoPrev={offset > MIN_OFFSET}
       canGoNext={offset < MAX_OFFSET}

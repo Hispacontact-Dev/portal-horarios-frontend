@@ -36,7 +36,9 @@ export interface ScheduleDayEntry {
   modality: "presencial" | "virtual" | null;
   time_ranges: TimeRange[];
   observation: string | null;
-  updated_at: string;
+  // `null` cuando el día sale del horario habitual (`source: "default"`): todavía no existe
+  // ninguna excepción guardada para esa fecha, así que no hay versión que comparar.
+  updated_at: string | null;
   source: "default" | "day_override" | "range_override" | "shift_override";
 }
 
@@ -65,7 +67,9 @@ export interface DayStatusChangeInput {
   date: string;
   status_id: string;
   observation?: string;
-  expected_updated_at: string;
+  // Se reenvía tal cual lo entregó `GET /schedules/week`, incluido el `null` de un día sin
+  // excepción: el backend compara por igualdad exacta y la clave es obligatoria en el payload.
+  expected_updated_at: string | null;
 }
 
 export interface DateRangeStatusChangeInput {
