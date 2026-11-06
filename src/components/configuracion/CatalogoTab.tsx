@@ -391,7 +391,7 @@ function CatalogView<T extends CatalogEntry>({
                 return (
                   <tr
                     key={entry.id}
-                    className={`border-t border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)] ${
+                    className={`border-t border-[var(--divider)] hover:bg-[var(--accent-row)] ${
                       entry.is_enabled ? "" : "text-[var(--neutral-700)]"
                     }`}
                   >

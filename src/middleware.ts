@@ -47,5 +47,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // Los assets estáticos de public/ (el logo) quedan fuera del matcher: si no, el
+  // middleware los redirige a /login y el logo no carga en la propia pantalla de login.
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|logo-hispacontact.svg).*)"],
 };

@@ -116,7 +116,7 @@ export function EmployeesView({ employees }: { employees: Employee[] }) {
             type="button"
             onClick={() => exportToCsv(filtered)}
             disabled={filtered.length === 0}
-            className="flex h-[38px] items-center gap-2 whitespace-nowrap border border-[var(--accent)] px-4 text-sm text-[var(--accent-700)] hover:bg-[var(--accent-100)] active:bg-[#dfeaf7] disabled:opacity-45"
+            className="flex h-[38px] items-center gap-2 whitespace-nowrap border border-[var(--accent)] px-4 text-sm text-[var(--accent-700)] hover:bg-[var(--accent-100)] active:bg-[var(--accent-150)] disabled:opacity-45"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -238,13 +238,13 @@ export function EmployeesView({ employees }: { employees: Employee[] }) {
                   >
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-3">
-                        <div className="font-heading grid h-[34px] w-[34px] flex-none place-items-center border border-[#8fadcc] text-[13px] font-semibold text-[var(--accent-700)]">
+                        <div className="font-heading grid h-[34px] w-[34px] flex-none place-items-center border border-[var(--accent-300)] text-[13px] font-semibold text-[var(--accent-700)]">
                           {getInitials(e.full_name)}
                         </div>
                         <Link
                           href={`${ROUTE_PATHS.empleados}/${e.id}`}
                           onClick={(ev) => ev.stopPropagation()}
-                          className="whitespace-nowrap font-medium underline decoration-transparent underline-offset-[3px] transition-colors hover:text-[var(--accent-700)] hover:decoration-[#8fadcc]"
+                          className="whitespace-nowrap font-medium underline decoration-transparent underline-offset-[3px] transition-colors hover:text-[var(--accent-700)] hover:decoration-[var(--accent-300)]"
                         >
                           {e.full_name || "—"}
                         </Link>
@@ -257,7 +257,7 @@ export function EmployeesView({ employees }: { employees: Employee[] }) {
                     </td>
                     <td className="px-3">
                       <span className={`inline-flex items-center gap-[7px] text-[13px] ${e.is_active ? "" : "text-[#76767a]"}`}>
-                        <span className={`h-2 w-2 border border-[#6f93b8] ${e.is_active ? "bg-[var(--accent)]" : ""}`} />
+                        <span className={`h-2 w-2 border border-[var(--accent-400)] ${e.is_active ? "bg-[var(--accent)]" : ""}`} />
                         {e.is_active ? "Activo" : "Inactivo"}
                       </span>
                     </td>

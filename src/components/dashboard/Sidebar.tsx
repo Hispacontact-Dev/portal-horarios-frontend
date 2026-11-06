@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Brand } from "@/components/layout/Brand";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { ROUTE_PATHS, ROLE_LABELS } from "@/lib/utils/constants";
 import type { Role } from "@/types/session";
@@ -25,28 +26,7 @@ export function Sidebar() {
 
   return (
     <aside className="anim-in sticky top-0 flex h-screen flex-col gap-7 border-r border-[var(--divider)] px-[18px] py-[26px]">
-      <div className="flex items-center gap-2.5 px-2">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" />
-          <path d="M16 2v4" />
-          <path d="M8 2v4" />
-          <path d="M3 10h5" />
-          <path d="M17.5 17.5 16 16.3V14" />
-          <circle cx="16" cy="16" r="6" />
-        </svg>
-        <span className="font-heading whitespace-nowrap text-[15px] font-semibold uppercase tracking-[.08em]">
-          Portal de Horarios
-        </span>
-      </div>
+      <Brand />
 
       <nav className="flex flex-col gap-0.5">
         {NAV.map((it, i) => {

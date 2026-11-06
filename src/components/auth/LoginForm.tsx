@@ -113,7 +113,7 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((show) => !show)}
-                  className="font-heading absolute right-1 top-1/2 h-8 -translate-y-1/2 px-2 text-xs font-semibold uppercase tracking-[.08em] text-[var(--accent)] hover:bg-[rgba(89,128,166,.1)] active:bg-[rgba(89,128,166,.18)]"
+                  className="font-heading absolute right-1 top-1/2 h-8 -translate-y-1/2 px-2 text-xs font-semibold uppercase tracking-[.08em] text-[var(--accent)] hover:bg-[var(--accent-ghost)] active:bg-[var(--accent-ghost-strong)]"
                 >
                   {showPassword ? "Ocultar" : "Ver"}
                 </button>

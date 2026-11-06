@@ -5,11 +5,23 @@
 :root {
   --bg: #f2f2f3;
   --text: #1d1f20;
-  --accent: #5980a6;
-  --accent-100: #eef6ff;
-  --accent-600: #597ea3;
-  --accent-700: #416180;
-  --accent-800: #2c455d;
+  /* Rampa de marca (morado corporativo #6B367F). Todo el color de acento sale de aquí:
+     ningún componente debe hardcodear un hex de la rampa. */
+  --accent: #6b367f;
+  --accent-100: #f7f0fa;
+  --accent-150: #eadbf0;
+  --accent-200: #dec4e9;
+  --accent-300: #b085c1;
+  --accent-400: #9560a9;
+  --accent-600: #5a2c6d;
+  --accent-700: #492258;
+  --accent-800: #371943;
+  --accent-900: #25112c;
+  /* Tintes translúcidos: hover/active de botones fantasma y de filas de tabla. */
+  --accent-ghost: rgba(107, 54, 127, 0.1);
+  --accent-ghost-strong: rgba(107, 54, 127, 0.18);
+  --accent-row: rgba(247, 240, 250, 0.6);
+  --accent-row-today: rgba(247, 240, 250, 0.7);
   --neutral-700: #5d5d60;
   --divider: rgba(29, 31, 32, 0.16);
 }

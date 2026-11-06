@@ -56,7 +56,7 @@ export function UserTable({
         {users.map((user) => (
           <tr
             key={user.id}
-            className={`border-t border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)] ${
+            className={`border-t border-[var(--divider)] hover:bg-[var(--accent-row)] ${
               user.is_active ? "" : "text-[var(--neutral-700)]"
             }`}
           >

@@ -248,12 +248,12 @@ export function HorariosView({
                   {filtered.map((employee, ri) => (
                     <div
                       key={employee.employee_id}
-                      className="anim-in grid gap-x-2 border-b border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)]"
+                      className="anim-in grid gap-x-2 border-b border-[var(--divider)] hover:bg-[var(--accent-row)]"
                       style={{ ...gridStyle, animationDelay: `${0.35 + Math.min(ri, 10) * 0.04}s` }}
                     >
                       <div className="flex min-w-0 items-center justify-between gap-2 py-2.5">
                         <Link href={`${ROUTE_PATHS.empleados}/${employee.employee_id}`} className="flex min-w-0 items-center gap-2.5">
-                          <div className="font-heading grid h-8 w-8 flex-none place-items-center border border-[#8fadcc] text-xs font-semibold text-[var(--accent-700)]">
+                          <div className="font-heading grid h-8 w-8 flex-none place-items-center border border-[var(--accent-300)] text-xs font-semibold text-[var(--accent-700)]">
                             {getInitials(employee.full_name)}
                           </div>
                           <div className="flex min-w-0 flex-col">
@@ -280,7 +280,7 @@ export function HorariosView({
                         return (
                           <div
                             key={day.date}
-                            className={`flex flex-col justify-center gap-1 px-1.5 py-2 ${isToday ? "bg-[rgba(238,246,255,.7)]" : weekend ? "bg-[rgba(241,241,242,.55)]" : ""}`}
+                            className={`flex flex-col justify-center gap-1 px-1.5 py-2 ${isToday ? "bg-[var(--accent-row-today)]" : weekend ? "bg-[rgba(241,241,242,.55)]" : ""}`}
                           >
                             {hiddenByStatusFilter ? (
                               <ScheduleRangeBlock label="—" status="sin_horario" title={`${employee.full_name} · no coincide con el filtro de Estado`} delay={delay} />

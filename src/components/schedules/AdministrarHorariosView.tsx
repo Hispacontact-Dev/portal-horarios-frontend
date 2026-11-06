@@ -150,7 +150,7 @@ export function AdministrarHorariosView() {
     <>
       <header className="anim-up flex flex-wrap items-end justify-between gap-4">
         <div>
-          <Link href={ROUTE_PATHS.horarios} className="text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[#1a2b3b]">
+          <Link href={ROUTE_PATHS.horarios} className="text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[var(--accent-900)]">
             ← Horarios
           </Link>
           <h1 className="font-heading mt-0.5 text-[42px] font-semibold uppercase leading-none">Administrar horarios</h1>

@@ -95,7 +95,7 @@ export function EmployeeEditView({
     <>
       <header className="anim-up flex flex-wrap items-end justify-between gap-5">
         <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-3">
-          <Link href={ROUTE_PATHS.empleados} className="text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[#1a2b3b]">
+          <Link href={ROUTE_PATHS.empleados} className="text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[var(--accent-900)]">
             ← Empleados
           </Link>
           <div className="flex items-center gap-[18px]">
@@ -116,7 +116,7 @@ export function EmployeeEditView({
                     employee.is_active ? "bg-[var(--accent-100)] text-[var(--accent-800)]" : "bg-[#e3e3e5] text-[#3b3b3d]"
                   }`}
                 >
-                  <span className={`h-[7px] w-[7px] border border-[#6f93b8] ${employee.is_active ? "bg-[var(--accent)]" : ""}`} />
+                  <span className={`h-[7px] w-[7px] border border-[var(--accent-400)] ${employee.is_active ? "bg-[var(--accent)]" : ""}`} />
                   {employee.status_name}
                 </span>
               </div>

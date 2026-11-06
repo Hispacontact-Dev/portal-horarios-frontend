@@ -144,11 +144,11 @@ export function statusVisualProps(
 ): StatusVisualProps {
   switch (status) {
     case "en_curso":
-      return { className: "border border-[#6f93b8] bg-[var(--accent)] text-[var(--bg)]" };
+      return { className: "border border-[var(--accent-400)] bg-[var(--accent)] text-[var(--bg)]" };
     case "finalizado":
-      return { className: "border border-[#6f93b8] bg-[var(--accent-700)] text-[var(--bg)]" };
+      return { className: "border border-[var(--accent-400)] bg-[var(--accent-700)] text-[var(--bg)]" };
     case "programado":
-      return { className: "border border-[#6f93b8] bg-transparent text-[var(--accent-800)]" };
+      return { className: "border border-[var(--accent-400)] bg-transparent text-[var(--accent-800)]" };
     case "sin_horario":
       return { className: "border border-[var(--divider)] text-[#3b3b3d]", style: ABSENCE_STRIPES };
     case "fuera_de_rango":

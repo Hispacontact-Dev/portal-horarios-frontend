@@ -35,7 +35,7 @@ export function StatusTable({
       </thead>
       <tbody>
         {statuses.map((status) => (
-          <tr key={status.id} className="border-t border-[var(--divider)] hover:bg-[rgba(238,246,255,.6)]">
+          <tr key={status.id} className="border-t border-[var(--divider)] hover:bg-[var(--accent-row)]">
             <td className="px-3 py-2 font-medium">{status.name}</td>
             <td className="px-3 py-2">
               <Badge

@@ -16,7 +16,7 @@ import {
 import type { Employee } from "@/types/employee";
 const MODALITY_COLOR: Record<"presencial" | "virtual", string> = {
   presencial: "var(--accent)",
-  virtual: "#c7dbf3",
+  virtual: "var(--accent-200)",
 };
 const OFF = "repeating-linear-gradient(45deg,#cfcfd1 0 3px,transparent 3px 6px)";
 
@@ -52,7 +52,7 @@ export function EmployeeDetail({ employee, onClose }: { employee: Employee; onCl
         <div className="flex-1 border-l border-[var(--divider)] pl-3">
           <p className="text-[10px] uppercase tracking-[.12em] text-[var(--neutral-700)]">Activo</p>
           <p className="mt-1.5 flex items-center gap-[7px] text-sm">
-            <span className={`h-2 w-2 border border-[#6f93b8] ${employee.is_active ? "bg-[var(--accent)]" : ""}`} />
+            <span className={`h-2 w-2 border border-[var(--accent-400)] ${employee.is_active ? "bg-[var(--accent)]" : ""}`} />
             {employee.is_active ? "Activo" : "Inactivo"}
           </p>
         </div>
@@ -75,7 +75,7 @@ export function EmployeeDetail({ employee, onClose }: { employee: Employee; onCl
                 <div key={weekday} className="flex flex-col items-center gap-1">
                   <span className="text-[10px] uppercase tracking-[.08em] text-[var(--neutral-700)]">{WEEKDAY_SHORT_LABELS[weekday]}</span>
                   <div
-                    className="anim-up h-11 w-full border border-[#8fadcc]"
+                    className="anim-up h-11 w-full border border-[var(--accent-300)]"
                     style={{ background: active ? MODALITY_COLOR[day!.modality!] : OFF, animationDelay: `${0.1 + j * 0.05}s` }}
                     title={
                       active

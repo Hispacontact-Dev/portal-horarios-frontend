@@ -92,8 +92,8 @@ export function EmployeeScheduleSummary({ employeeId }: { employeeId: string }) 
                         <div
                           key={k}
                           title={`${range.start}–${range.end} · ${modalityLabel}`}
-                          className={`anim-grow absolute inset-y-0 border border-[#6f93b8] ${
-                            day!.modality === "virtual" ? "bg-[#c7dbf3]" : "bg-[var(--accent)]"
+                          className={`anim-grow absolute inset-y-0 border border-[var(--accent-400)] ${
+                            day!.modality === "virtual" ? "bg-[var(--accent-200)]" : "bg-[var(--accent)]"
                           }`}
                           style={{
                             left: `${((toH(range.start) - START) / SPAN) * 100}%`,

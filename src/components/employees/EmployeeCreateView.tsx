@@ -74,7 +74,7 @@ function CreateForm({ onCreated }: { onCreated: (employee: Employee) => void }) 
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[22px]">
       <header className="anim-up flex flex-wrap items-end justify-between gap-5">
         <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-2.5">
-          <Link href={ROUTE_PATHS.empleados} className="text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[#1a2b3b]">
+          <Link href={ROUTE_PATHS.empleados} className="text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[var(--accent-900)]">
             ← Empleados
           </Link>
           <h1 className="font-heading text-[42px] font-semibold uppercase leading-none">Nuevo empleado</h1>
@@ -265,7 +265,7 @@ function OptionButton({ active, onClick, title }: { active: boolean; onClick: ()
 function CreatedPanel({ employee, onAgain }: { employee: Employee; onAgain: () => void }) {
   return (
     <div className="flex flex-col gap-[22px]">
-      <Link href={ROUTE_PATHS.empleados} className="anim-up text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[#1a2b3b]">
+      <Link href={ROUTE_PATHS.empleados} className="anim-up text-[11px] uppercase tracking-[.12em] text-[var(--accent-700)] hover:text-[var(--accent-900)]">
         ← Empleados
       </Link>
       <section className="panel anim-up mx-auto flex w-full max-w-[560px] flex-col gap-5 px-8 py-8" style={{ animationDelay: ".1s" }}>
@@ -288,7 +288,7 @@ function CreatedPanel({ employee, onAgain }: { employee: Employee; onAgain: () =
                   employee.is_active ? "bg-[var(--accent-100)] text-[var(--accent-800)]" : "bg-[#e3e3e5] text-[#3b3b3d]"
                 }`}
               >
-                <span className={`h-[7px] w-[7px] border border-[#6f93b8] ${employee.is_active ? "bg-[var(--accent)]" : ""}`} />
+                <span className={`h-[7px] w-[7px] border border-[var(--accent-400)] ${employee.is_active ? "bg-[var(--accent)]" : ""}`} />
                 {employee.status_name}
               </span>
             </div>
@@ -316,7 +316,7 @@ function CreatedPanel({ employee, onAgain }: { employee: Employee; onAgain: () =
           </button>
         </div>
 
-        <Link href={`${ROUTE_PATHS.empleados}/${employee.id}`} className="text-center text-[13px] text-[var(--accent-700)] hover:text-[#1a2b3b]">
+        <Link href={`${ROUTE_PATHS.empleados}/${employee.id}`} className="text-center text-[13px] text-[var(--accent-700)] hover:text-[var(--accent-900)]">
           Ver ficha del empleado →
         </Link>
       </section>
