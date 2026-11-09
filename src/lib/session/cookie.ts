@@ -9,9 +9,13 @@ function getCookieValue(name: string): string | null {
   return decodeURIComponent(match.slice(name.length + 1));
 }
 
+// La cookie sigue siendo legible por JS (el cliente la necesita para armar el header
+// `Authorization`), pero en producción (HTTPS) no debe viajar por HTTP ni en
+// contextos cross-site: de ahí `Secure` y `SameSite=Lax`.
 export function writeSessionCookie(session: Session): void {
   const value = encodeURIComponent(JSON.stringify(session));
-  document.cookie = `${SESSION_COOKIE_NAME}=${value}; path=/`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${SESSION_COOKIE_NAME}=${value}; path=/; SameSite=Lax${secure}`;
 }
 
 export function readSessionCookie(): Session | null {
