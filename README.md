@@ -31,17 +31,14 @@ Los dominios reflejan lo que el backend expone hoy:
 
 ```bash
 npm install
-cp .env.local.example .env.local   # ver variables de entorno abajo
+cp .env.example .env.local   # ver variables de entorno abajo
 ```
 
 ### Variables de entorno
 
 | Variable | Descripción | Ejemplo |
 |---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | URL base del backend FastAPI | `http://localhost:8000` |
-
-> No existe `.env.local.example` todavía — crear `.env.local` a mano con la
-> variable de arriba hasta que se agregue el archivo de ejemplo.
+| `NEXT_PUBLIC_API_BASE_URL` | URL base del backend FastAPI, sin slash final | `http://localhost:8000` |
 
 ## Ejecutar
 
@@ -51,6 +48,31 @@ npm run build    # build de producción
 npm run start    # sirve el build de producción
 npm run lint     # linting con eslint-config-next
 ```
+
+## Despliegue en Vercel
+
+El frontend y el backend se despliegan como **dos proyectos Vercel separados**, uno
+por repo. Cada uno apunta al otro por variable de entorno:
+
+| Proyecto | Variable | Valor |
+|---|---|---|
+| `portal-horarios` (este repo) | `NEXT_PUBLIC_API_BASE_URL` | URL del backend, p. ej. `https://portal-horarios-api.vercel.app` |
+| `portal-horarios-api` (backend) | `CORS_ORIGINS` | URL de este frontend, p. ej. `https://portal-horarios.vercel.app` |
+| `portal-horarios-api` (backend) | `CORS_ORIGINS_REGEX` | `https://portal-horarios-.*\.vercel\.app` (autoriza los Preview Deployments) |
+
+Pasos:
+
+1. Desplegar primero el backend, para conocer su URL.
+2. Importar este repo en `vercel.com/new`; Vercel detecta Next.js solo (sin build
+   command ni `vercel.json` propios) y la rama de producción es `main`.
+3. Definir `NEXT_PUBLIC_API_BASE_URL` en el proyecto (Production, Preview y
+   Development) y desplegar.
+
+> `NEXT_PUBLIC_*` se incrusta en el bundle **en tiempo de build**: si cambia la URL
+> del backend, hay que redesplegar el frontend; guardar la variable no basta.
+
+Comprobaciones rápidas: `curl <backend>/health` debe devolver `{"status":"ok"}`, y en
+el login del frontend la consola del navegador no debe mostrar errores de CORS.
 
 ## Estructura
 
@@ -104,8 +126,6 @@ documentados como `// TODO` en el código correspondiente:
   todavía, solo dar de alta (`/usuarios/nuevo`).
 - **Sin endpoints de "horarios"**: la feature central del producto no está
   implementada en el backend; `/horarios` es solo un placeholder.
-- **Sin CORS configurado** en el backend: hay que agregarlo ahí para que el
-  navegador pueda llamar a la API desde este frontend en otro origen.
 
 ## Convenciones
 

@@ -1,13 +1,12 @@
-import { HistoryFilters } from "@/components/history/HistoryFilters";
-import { HistoryTable } from "@/components/history/HistoryTable";
+import { Suspense } from "react";
+import { AuditoriaView } from "@/components/history/AuditoriaView";
+import { Spinner } from "@/components/ui/Spinner";
 
-// TODO: cargar entradas vía useHistory() según los filtros seleccionados.
 export default function AuditoriaPage() {
+  // `AuditoriaView` lee los filtros de la URL con `useSearchParams`, que exige Suspense.
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold">Auditoría</h1>
-      <HistoryFilters />
-      <HistoryTable entries={[]} />
-    </div>
+    <Suspense fallback={<Spinner />}>
+      <AuditoriaView />
+    </Suspense>
   );
 }

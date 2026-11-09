@@ -1,0 +1,151 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { Corners } from "./Corners";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Select } from "@/components/ui/Select";
+import { useTodaySchedule } from "@/lib/hooks/useTodaySchedule";
+import { useNowTick } from "@/lib/hooks/useNowTick";
+import { nowAsDecimalHour, rowStatusLabel, type RowStatus } from "@/lib/utils/scheduleStatus";
+import { filterByArea, filterByRowStatus, sortByRowPriority } from "@/lib/utils/scheduleLayout";
+import { uniqueAreaNames } from "@/lib/utils/catalog";
+import { TurnosHoyHourRow } from "./turnos-hoy/TurnosHoyHourRow";
+import { TurnosHoyRow } from "./turnos-hoy/TurnosHoyRow";
+import { TurnosHoyNowLine } from "./turnos-hoy/TurnosHoyNowLine";
+import { TurnosHoySkeletonRow } from "./turnos-hoy/TurnosHoySkeletonRow";
+
+const ROW_STATUS_OPTIONS: RowStatus[] = ["sin_horario", "en_curso", "finalizado", "programado"];
+const STAGGER_LIMIT = 10;
+
+/** La regla de horas se queda fija arriba mientras la lista se desplaza. */
+function HourRuler() {
+  return (
+    <div className="sticky top-0 z-[2] shrink-0 bg-[var(--bg)]">
+      <TurnosHoyHourRow />
+    </div>
+  );
+}
+
+export function TurnosHoy() {
+  const { state, retry } = useTodaySchedule();
+  const nowTick = useNowTick();
+  const [areaName, setAreaName] = useState<string | null>(null);
+  const [rowStatus, setRowStatus] = useState<RowStatus | null>(null);
+
+  const nowHour = nowAsDecimalHour(nowTick ?? new Date());
+
+  const areaOptions = useMemo(() => {
+    if (state.status !== "success") return [];
+    return uniqueAreaNames(state.data);
+  }, [state]);
+
+  const visibleEntries = useMemo(() => {
+    if (state.status !== "success") return [];
+    const byArea = filterByArea(state.data, areaName);
+    const byStatus = filterByRowStatus(byArea, rowStatus, nowHour);
+    return sortByRowPriority(byStatus, nowHour);
+  }, [state, areaName, rowStatus, nowHour]);
+
+  return (
+    <section
+      // `--thy-name-col` y `--thy-gap` son la única fuente de verdad de la rejilla: las heredan
+      // la regla de horas, las filas, el esqueleto y la línea de "ahora".
+      // `min-h-0` deja que los hijos se encojan dentro del alto que la rejilla del dashboard
+      // le da a la tarjeta, en vez de desbordarla.
+      className="panel anim-up flex min-h-0 flex-col gap-3 px-5 py-[18px] [--thy-gap:8px] [--thy-name-col:120px] md:[--thy-name-col:190px]"
+      style={{ animationDelay: ".3s" }}
+    >
+      <Corners />
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-heading whitespace-nowrap text-[22px] font-semibold">Turnos de hoy</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          {state.status === "success" && areaOptions.length > 1 && (
+            <Select
+              value={areaName ?? ""}
+              onChange={(e) => setAreaName(e.target.value || null)}
+              className="h-7 text-xs"
+              aria-label="Filtrar por área"
+            >
+              <option value="">Todas las áreas</option>
+              {areaOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </Select>
+          )}
+          {state.status === "success" && (
+            <Select
+              value={rowStatus ?? ""}
+              onChange={(e) => setRowStatus((e.target.value || null) as RowStatus | null)}
+              className="h-7 text-xs"
+              aria-label="Filtrar por estado"
+            >
+              <option value="">Todos los estados</option>
+              {ROW_STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {rowStatusLabel(status)}
+                </option>
+              ))}
+            </Select>
+          )}
+          <Link
+            href="/horarios"
+            className="whitespace-nowrap text-[13px] text-[var(--accent-700)] hover:text-[var(--accent-800)]"
+          >
+            Ver horarios →
+          </Link>
+        </div>
+      </div>
+
+      {state.status === "loading" && (
+        <div className="flex min-h-0 flex-1 flex-col">
+          <HourRuler />
+          {Array.from({ length: 6 }, (_, i) => (
+            <TurnosHoySkeletonRow key={i} />
+          ))}
+        </div>
+      )}
+
+      {state.status === "error" && (
+        <div className="grid min-h-0 flex-1 place-items-center">
+          <ErrorState message={state.error.message} onRetry={retry} />
+        </div>
+      )}
+
+      {state.status === "empty" && (
+        <div className="grid min-h-0 flex-1 place-items-center">
+          <div className="rounded border border-dashed border-[var(--divider)] px-4 py-6 text-center text-sm text-[var(--neutral-700)]">
+            No hay turnos programados para hoy.{" "}
+            <Link href="/horarios" className="font-medium text-[var(--accent-700)] hover:text-[var(--accent-800)]">
+              + Nuevo horario
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {state.status === "success" && (
+        // La regla de horas y la línea de "ahora" van DENTRO del contenedor con scroll: si
+        // quedan afuera, la barra de desplazamiento le roba ancho solo a las filas y las
+        // barras de turno se corren respecto de las etiquetas de hora.
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <div className="relative flex min-h-full flex-1 flex-col">
+            <HourRuler />
+            <div role="list" className="flex min-h-0 flex-1 flex-col">
+              {visibleEntries.map((entry, i) => (
+                <TurnosHoyRow
+                  key={entry.employee_id}
+                  entry={entry}
+                  nowHour={nowHour}
+                  animationDelay={`${0.35 + Math.min(i, STAGGER_LIMIT) * 0.07}s`}
+                />
+              ))}
+            </div>
+            <TurnosHoyNowLine />
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}

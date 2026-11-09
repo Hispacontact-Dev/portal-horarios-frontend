@@ -1,4 +1,12 @@
-export type EntityType = "employee" | "area" | "status" | "user" | "login";
+export type EntityType =
+  | "employee"
+  | "area"
+  | "status"
+  | "position"
+  | "shift_template"
+  | "holiday"
+  | "user"
+  | "login";
 
 export interface HistoryChange {
   field: string;
@@ -9,9 +17,10 @@ export interface HistoryChange {
 export interface HistoryEntry {
   id: string;
   entity_type: EntityType;
-  entity_id: string;
+  // Las entradas de inicio de sesión no apuntan a ninguna entidad.
+  entity_id: string | null;
   action: string;
-  actor_id: string;
+  actor_id: string | null;
   actor_name: string;
   changes: HistoryChange[];
   occurred_at: string;

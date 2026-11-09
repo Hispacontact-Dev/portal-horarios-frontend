@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, type MouseEvent, type ReactNode } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -6,8 +8,29 @@ interface ModalProps {
   children: ReactNode;
 }
 
-// TODO: implementar overlay, foco atrapado y cierre con Escape.
-export function Modal({ isOpen, children }: ModalProps) {
+export function Modal({ isOpen, onClose, children }: ModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
-  return <div className="fixed inset-0 flex items-center justify-center">{children}</div>;
+
+  function stopPropagation(event: MouseEvent<HTMLDivElement>) {
+    event.stopPropagation();
+  }
+
+  return (
+    <div
+      role="presentation"
+      className="anim-in fixed inset-0 z-20 flex items-center justify-center bg-[rgba(29,31,32,.45)] p-4"
+      onClick={onClose}
+    >
+      <div onClick={stopPropagation}>{children}</div>
+    </div>
+  );
 }

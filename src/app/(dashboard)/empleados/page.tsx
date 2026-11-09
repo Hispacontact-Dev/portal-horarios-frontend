@@ -1,11 +1,15 @@
-import { EmployeeTable } from "@/components/employees/EmployeeTable";
+"use client";
 
-// TODO: cargar empleados vía useEmployees() y pasarlos a EmployeeTable.
+import { useEmployees } from "@/lib/hooks/useEmployees";
+import { EmployeesView } from "@/components/employees/EmployeesView";
+import { Spinner } from "@/components/ui/Spinner";
+import { ErrorState } from "@/components/ui/ErrorState";
+
 export default function EmpleadosPage() {
-  return (
-    <div>
-      <h1 className="text-lg font-semibold">Empleados</h1>
-      <EmployeeTable employees={[]} />
-    </div>
-  );
+  const { status, employees, error } = useEmployees();
+
+  if (status === "loading") return <Spinner />;
+  if (status === "error") return <ErrorState message={error.message} />;
+
+  return <EmployeesView employees={employees} />;
 }

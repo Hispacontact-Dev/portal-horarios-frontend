@@ -1,3 +1,264 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg: #f2f2f3;
+  --text: #1d1f20;
+  /* Rampa de marca (morado corporativo #6B367F). Todo el color de acento sale de aquí:
+     ningún componente debe hardcodear un hex de la rampa. */
+  --accent: #6b367f;
+  --accent-100: #f7f0fa;
+  --accent-150: #eadbf0;
+  --accent-200: #dec4e9;
+  --accent-300: #b085c1;
+  --accent-400: #9560a9;
+  --accent-600: #5a2c6d;
+  --accent-700: #492258;
+  --accent-800: #371943;
+  --accent-900: #25112c;
+  /* Tintes translúcidos: hover/active de botones fantasma y de filas de tabla. */
+  --accent-ghost: rgba(107, 54, 127, 0.1);
+  --accent-ghost-strong: rgba(107, 54, 127, 0.18);
+  --accent-row: rgba(247, 240, 250, 0.6);
+  --accent-row-today: rgba(247, 240, 250, 0.7);
+  --neutral-700: #5d5d60;
+  --divider: rgba(29, 31, 32, 0.16);
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 48px 48px;
+  }
+}
+.anim-up {
+  animation: fadeUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.anim-in {
+  animation: fadeIn 0.6s both;
+}
+.grid-bg {
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(29, 31, 32, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 31, 32, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: drift 6s linear infinite;
+}
+.corner {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  color: rgba(29, 31, 32, 0.55);
+}
+.corner::before,
+.corner::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.corner::before {
+  left: 5px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+.corner::after {
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.font-heading {
+  font-family: var(--font-heading);
+}
+body {
+  font-family: var(--font-body);
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.anim-grow {
+  transform-origin: left;
+  animation: grow 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.panel {
+  position: relative;
+  border: 1px solid var(--divider);
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-slide {
+  animation: slideIn 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.input-ui {
+  min-height: 38px;
+  border: 1px solid var(--divider);
+  background: #e9e9ea;
+  padding: 0 10px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  caret-color: var(--accent);
+}
+.input-ui:hover {
+  border-color: rgba(29, 31, 32, 0.45);
+}
+.input-ui:focus-visible {
+  border-color: var(--accent);
+}
+@keyframes pulseDot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 242, 243, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 7px rgba(242, 242, 243, 0);
+  }
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-toast {
+  animation: toastIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.stripes {
+  background: repeating-linear-gradient(45deg, #cfcfd1 0 4px, transparent 4px 8px);
+}
+
+/* Interruptor: un cuadrado que se rellena, sin esquinas redondeadas, igual que el
+   resto del lenguaje visual. El knob es el ::after. */
+.switch-ui {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 1px solid var(--accent);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.switch-ui::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  transition: left 0.2s, background 0.2s;
+}
+.switch-ui[aria-checked="true"] {
+  background: var(--accent);
+}
+.switch-ui[aria-checked="true"]::after {
+  left: 18px;
+  background: var(--bg);
+}
+.switch-ui:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.switch-ui:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Punto de condición: habilitado se rellena, deshabilitado queda en contorno. */
+.dot-ui {
+  display: inline-block;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--accent-600);
+}
+.dot-ui[data-on="true"] {
+  background: var(--accent);
+}
+.dot-ui[data-size="lg"] {
+  width: 10px;
+  height: 10px;
+}
+
+/* Línea de tiempo de 24 h de las plantillas de turno: la rejilla marca cada 4 h. */
+.track-ui {
+  position: relative;
+  height: 18px;
+  background-image: linear-gradient(90deg, var(--divider) 1px, transparent 1px);
+  background-size: 16.6667% 100%;
+}
+.track-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  border: 1px solid var(--accent-600);
+  transform-origin: left;
+  animation: grow 0.6s both cubic-bezier(0.2, 0.7, 0.2, 1);
+}

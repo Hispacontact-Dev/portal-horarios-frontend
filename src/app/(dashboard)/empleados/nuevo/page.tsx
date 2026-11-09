@@ -1,10 +1,12 @@
-import { EmployeeForm } from "@/components/employees/EmployeeForm";
+"use client";
+
+import { RoleGate } from "@/components/auth/RoleGate";
+import { EmployeeCreateView } from "@/components/employees/EmployeeCreateView";
 
 export default function NuevoEmpleadoPage() {
   return (
-    <div>
-      <h1 className="text-lg font-semibold">Nuevo empleado</h1>
-      <EmployeeForm />
-    </div>
+    <RoleGate>
+      <EmployeeCreateView />
+    </RoleGate>
   );
 }

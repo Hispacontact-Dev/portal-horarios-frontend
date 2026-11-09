@@ -1,10 +1,5 @@
-import { UserForm } from "@/components/users/UserForm";
+import { redirect } from "next/navigation";
 
 export default function NuevoUsuarioPage() {
-  return (
-    <div>
-      <h1 className="text-lg font-semibold">Nuevo usuario</h1>
-      <UserForm />
-    </div>
-  );
+  redirect("/configuracion?tab=usuarios");
 }

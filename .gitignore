@@ -19,6 +19,7 @@ yarn-error.log*
 
 # local env files
 .env*
+!.env.example
 
 # typescript
 *.tsbuildinfo
@@ -26,3 +27,12 @@ next-env.d.ts.bak
 
 # vercel
 .vercel
+
+.claude
+docs
+specs
+AGENTS.md
+CLAUDE.md
+CONTEXT.md
+IMPLEMENTACION.md
+TASK.md

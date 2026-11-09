@@ -1,5 +1,5 @@
-import type { UserRole } from "@/types/user";
-import type { EntityType } from "@/types/history";
+import type { Role } from "@/types/session";
+import type { Weekday } from "@/types/schedule";
 
 export const ROUTE_PATHS = {
   login: "/login",
@@ -10,18 +10,50 @@ export const ROUTE_PATHS = {
   usuarios: "/usuarios",
   auditoria: "/auditoria",
   horarios: "/horarios",
+  configuracion: "/configuracion",
 } as const;
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  admin: "Administrador",
-  junta_directiva: "Junta Directiva",
+export const ROLE_LABELS: Record<Role, string> = {
+  gestion_humana: "Gestión Humana",
   lider: "Líder",
 };
 
-export const ENTITY_TYPE_LABELS: Record<EntityType, string> = {
-  employee: "Empleado",
-  area: "Área",
-  status: "Estado",
-  user: "Usuario",
-  login: "Inicio de sesión",
+// Días de la semana, de lunes a domingo. `WORKWEEK_WEEKDAYS` es el predeterminado laboral: el fin
+// de semana nace apagado en los editores y se marca a mano cuando se programa un turno.
+export const WEEKDAY_ORDER: Weekday[] = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+export const WORKWEEK_WEEKDAYS: Weekday[] = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+];
+
+export const WEEKDAY_LABELS: Record<Weekday, string> = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
+
+export const WEEKDAY_SHORT_LABELS: Record<Weekday, string> = {
+  monday: "L",
+  tuesday: "M",
+  wednesday: "X",
+  thursday: "J",
+  friday: "V",
+  saturday: "S",
+  sunday: "D",
 };
