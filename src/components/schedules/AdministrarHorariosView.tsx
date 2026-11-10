@@ -6,6 +6,7 @@ import { Corners } from "@/components/dashboard/Corners";
 import { useEmployees } from "@/lib/hooks/useEmployees";
 import { useStatuses } from "@/lib/hooks/useStatuses";
 import { useBulkAssignment } from "@/lib/hooks/useBulkAssignment";
+import { useShiftTemplates } from "@/lib/hooks/useShiftTemplates";
 import { uniqueAreaNames } from "@/lib/utils/catalog";
 import { toH } from "@/lib/utils/time";
 import { addWeeks, datesForWeekdays, mondayOf, toISODate } from "@/lib/utils/week";
@@ -17,30 +18,29 @@ import {
 } from "@/lib/utils/constants";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
-import type { Weekday } from "@/types/schedule";
+import type { TimeRange, Weekday } from "@/types/schedule";
 
 type Kind = "shift" | "status";
 type Modality = "presencial" | "virtual";
 
-interface Plantilla {
+// Opción del paso 02: una Plantilla de turno del catálogo de Configuración (/shift-templates), o la
+// pseudo-plantilla "Personalizado", que no viene del catálogo y por eso no declara días
+// (`weekdays: null`) ni toca el selector de Días.
+interface PlantillaOption {
   id: string;
   name: string;
-  blocks: [string, string][];
+  blocks: TimeRange[];
+  weekdays: Weekday[] | null;
 }
 
-const PLANTILLAS: Plantilla[] = [
-  { id: "jc", name: "Jornada completa", blocks: [["08:00", "17:00"]] },
-  { id: "jp", name: "Jornada partida", blocks: [["08:00", "12:00"], ["13:00", "17:00"]] },
-  { id: "t9", name: "Turno 9 a 18", blocks: [["09:00", "18:00"]] },
-  { id: "mj", name: "Media jornada", blocks: [["08:00", "13:00"]] },
-];
+const CUSTOM_ID = "custom";
 
 const WEEKDAY_OPTIONS: { value: Weekday; label: string }[] = WEEKDAY_ORDER.map((value) => ({
   value,
   label: WEEKDAY_SHORT_LABELS[value],
 }));
 
-const span = (b: [string, string]) => Math.max(0, toH(b[1]) - toH(b[0]));
+const span = (b: TimeRange) => Math.max(0, toH(b.end) - toH(b.start));
 
 function Paso({ n, t, children }: { n: string; t: string; children?: ReactNode }) {
   return (
@@ -55,6 +55,7 @@ function Paso({ n, t, children }: { n: string; t: string; children?: ReactNode }
 export function AdministrarHorariosView() {
   const { status: employeesStatus, employees, error: employeesError } = useEmployees();
   const { statuses } = useStatuses();
+  const { status: templatesStatus, shiftTemplates, error: templatesError } = useShiftTemplates();
   const { state, submit } = useBulkAssignment();
   const areaOptions = uniqueAreaNames(employees);
 
@@ -63,7 +64,9 @@ export function AdministrarHorariosView() {
   const [area, setArea] = useState("");
 
   const [kind, setKind] = useState<Kind>("shift");
-  const [plantillaId, setPlantillaId] = useState(PLANTILLAS[0]?.id ?? "custom");
+  // Arranca sin plantilla elegida: el catálogo llega por red, y preseleccionar la primera que
+  // aparezca puede asignar un turno que nadie eligió.
+  const [plantillaId, setPlantillaId] = useState("");
   const [modality, setModality] = useState<Modality>("presencial");
   const [customStart, setCustomStart] = useState("07:00");
   const [customEnd, setCustomEnd] = useState("15:00");
@@ -94,8 +97,18 @@ export function AdministrarHorariosView() {
       return n;
     });
 
-  const todasPlantillas: Plantilla[] = [...PLANTILLAS, { id: "custom", name: "Personalizado", blocks: [[customStart, customEnd]] }];
-  const bloques = todasPlantillas.find((p) => p.id === plantillaId)?.blocks ?? [];
+  // Al elegir una Plantilla del catálogo se marcan los días que la propia Plantilla declara; quedan
+  // editables a mano después. "Personalizado" no declara días y deja el selector como está.
+  function elegirPlantilla(p: PlantillaOption) {
+    setPlantillaId(p.id);
+    if (p.weekdays && p.weekdays.length > 0) setWeekdays(new Set(p.weekdays));
+  }
+
+  const plantillas: PlantillaOption[] = [
+    ...shiftTemplates.map((t) => ({ id: t.id, name: t.name, blocks: t.blocks, weekdays: t.weekdays })),
+    { id: CUSTOM_ID, name: "Personalizado", blocks: [{ start: customStart, end: customEnd }], weekdays: null },
+  ];
+  const bloques: TimeRange[] = plantillas.find((p) => p.id === plantillaId)?.blocks ?? [];
   const isShift = kind === "shift";
 
   const candidateDates = useMemo(() => {
@@ -116,7 +129,6 @@ export function AdministrarHorariosView() {
     state.status !== "submitting";
 
   async function guardar() {
-    const timeRanges = bloques.map(([start, end]) => ({ start, end }));
     const result = await submit(
       isShift
         ? {
@@ -126,7 +138,7 @@ export function AdministrarHorariosView() {
             weekdays: [...weekdays],
             kind: "shift",
             modality,
-            time_ranges: timeRanges,
+            time_ranges: bloques,
           }
         : {
             employee_ids: [...sel],
@@ -261,21 +273,45 @@ export function AdministrarHorariosView() {
 
             {isShift ? (
               <>
+                {templatesStatus === "loading" && <Spinner />}
+                {templatesStatus === "error" && <ErrorState message={templatesError.message} />}
+                {templatesStatus === "success" && shiftTemplates.length === 0 && (
+                  <p className="text-[13px] text-[var(--neutral-700)]">
+                    No hay Plantillas de turno en el catálogo.{" "}
+                    <Link
+                      href={`${ROUTE_PATHS.configuracion}?tab=plantillas`}
+                      className="text-[var(--accent-700)] underline hover:text-[var(--accent-900)]"
+                    >
+                      Creá la primera en Configuración
+                    </Link>{" "}
+                    o usá Personalizado para escribir las horas a mano.
+                  </p>
+                )}
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-2.5">
-                  {todasPlantillas.map((p) => {
+                  {plantillas.map((p) => {
                     const hrs = p.blocks.reduce((a, b) => a + span(b), 0);
+                    const dias = p.weekdays;
+                    const diasLabel =
+                      dias && dias.length > 0
+                        ? WEEKDAY_ORDER.filter((w) => dias.includes(w)).map((w) => WEEKDAY_SHORT_LABELS[w]).join(" ")
+                        : null;
                     return (
-                      <button key={p.id} type="button" onClick={() => setPlantillaId(p.id)} className={card(plantillaId === p.id)}>
+                      <button key={p.id} type="button" onClick={() => elegirPlantilla(p)} className={card(plantillaId === p.id)}>
                         <div className="flex items-baseline justify-between gap-1.5">
                           <span className="font-heading text-base font-semibold">{p.name}</span>
                           <span className="whitespace-nowrap text-[11px] text-[var(--neutral-700)]">{+hrs.toFixed(1)} h</span>
                         </div>
-                        <span className="text-xs tabular-nums text-[#3b3b3d]">{p.blocks.map((b) => b.join("–")).join(" · ")}</span>
+                        <span className="text-xs tabular-nums text-[#3b3b3d]">
+                          {p.blocks.map((b) => `${b.start}–${b.end}`).join(" · ")}
+                        </span>
+                        {diasLabel && (
+                          <span className="text-[11px] tracking-[.08em] text-[var(--neutral-700)]">{diasLabel}</span>
+                        )}
                       </button>
                     );
                   })}
                 </div>
-                {plantillaId === "custom" && (
+                {plantillaId === CUSTOM_ID && (
                   <div className="anim-up flex flex-wrap gap-3">
                     <div>
                       <label className={lbl}>Inicio</label>
