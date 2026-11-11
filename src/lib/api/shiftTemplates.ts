@@ -1,5 +1,10 @@
 import { apiFetch } from "@/lib/api/client";
-import type { ShiftTemplate, ShiftTemplateCreate, ShiftTemplateUpdate } from "@/types/shiftTemplate";
+import type {
+  ShiftTemplate,
+  ShiftTemplateCreate,
+  ShiftTemplateDeleted,
+  ShiftTemplateUpdate,
+} from "@/types/shiftTemplate";
 
 // Corresponde al recurso /shift-templates del backend (Catálogo de Plantillas de turno en la UI).
 // Lo expone el backend desde specs/009-catalogos-configuracion. Cubre de lunes a domingo, igual
@@ -21,4 +26,8 @@ export async function updateShiftTemplate(id: string, data: ShiftTemplateUpdate)
     method: "PATCH",
     body: JSON.stringify(data),
   });
+}
+
+export async function deleteShiftTemplate(id: string): Promise<ShiftTemplateDeleted> {
+  return apiFetch<ShiftTemplateDeleted>(`/shift-templates/${id}`, { method: "DELETE" });
 }

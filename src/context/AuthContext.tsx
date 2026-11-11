@@ -12,10 +12,16 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { login as loginRequest, logout as logoutRequest } from "@/lib/api/auth";
 import { registerSessionInvalidHandler } from "@/lib/api/client";
+import { SessionExpiredModal } from "@/components/auth/SessionExpiredModal";
 import { onBroadcastLogout, writeBroadcastSignal } from "@/lib/session/broadcast";
 import { clearSessionCookie, readSessionCookie, writeSessionCookie } from "@/lib/session/cookie";
-import { INACTIVITY_TIMEOUT_MINUTES, NEXT_QUERY_PARAM } from "@/lib/session/constants";
+import {
+  INACTIVITY_TIMEOUT_MINUTES,
+  NEXT_QUERY_PARAM,
+  REASON_QUERY_PARAM,
+} from "@/lib/session/constants";
 import { isExpiredByInactivity } from "@/lib/session/expiration";
+import type { SessionEndReason } from "@/lib/session/session-end";
 import { canonicalRole } from "@/lib/utils/role";
 import type { LoginRequest } from "@/types/auth";
 import type { Session } from "@/types/session";
@@ -45,14 +51,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("unauthenticated");
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // Motivo del cierre involuntario de sesión; mientras no sea `null` el aviso bloquea la pantalla.
+  const [sessionEnd, setSessionEnd] = useState<SessionEndReason | null>(null);
+  // Espejo síncrono de `sessionEnd`: un segundo 401 de la misma tanda no debe reescribir el
+  // motivo ni volver a disparar el aviso antes del próximo render.
+  const sessionEndRef = useRef<SessionEndReason | null>(null);
+  // Pantalla en la que estaba el usuario al expirar, para devolverlo ahí después del login.
+  const nextPathRef = useRef("/dashboard");
 
-  // Cierra la sesión localmente y redirige al login sin aviso previo — RF-4, RF-7.
-  const redirectToLoginSilently = useCallback(() => {
+  const clearSessionLocally = useCallback(() => {
     clearSessionCookie();
     setSession(null);
     setStatus("unauthenticated");
-    const next = encodeURIComponent(pathnameRef.current || "/dashboard");
-    router.replace(`/login?${NEXT_QUERY_PARAM}=${next}`);
+  }, []);
+
+  // Cierra la sesión localmente y va al login, que explica el motivo al llegar — RF-4, RF-7.
+  const redirectToLoginWithReason = useCallback(
+    (reason: SessionEndReason) => {
+      clearSessionLocally();
+      const next = encodeURIComponent(pathnameRef.current || "/dashboard");
+      router.replace(`/login?${NEXT_QUERY_PARAM}=${next}&${REASON_QUERY_PARAM}=${reason}`);
+    },
+    [clearSessionLocally, router]
+  );
+
+  // Cierra la sesión pero se queda en la pantalla actual mostrando el aviso bloqueante: el
+  // usuario ve qué pasó donde estaba trabajando, y el login queda a un click.
+  const endSessionWithNotice = useCallback(
+    (reason: SessionEndReason) => {
+      if (sessionEndRef.current !== null) return;
+      // En el login no hay sesión que cerrar ni pantalla previa que preservar.
+      if (pathnameRef.current === "/login") return;
+      nextPathRef.current = pathnameRef.current || "/dashboard";
+      sessionEndRef.current = reason;
+      clearSessionLocally();
+      setSessionEnd(reason);
+    },
+    [clearSessionLocally]
+  );
+
+  const goToLoginAfterNotice = useCallback(() => {
+    const reason = sessionEndRef.current;
+    sessionEndRef.current = null;
+    setSessionEnd(null);
+    const next = encodeURIComponent(nextPathRef.current);
+    const reasonParam = reason === null ? "" : `&${REASON_QUERY_PARAM}=${reason}`;
+    router.replace(`/login?${NEXT_QUERY_PARAM}=${next}${reasonParam}`);
   }, [router]);
 
   // Hidratación al montar — RF-2, RF-4.
@@ -63,7 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (isExpiredByInactivity(stored, INACTIVITY_TIMEOUT_MINUTES)) {
-      redirectToLoginSilently();
+      // Sin pantalla previa que congelar (la app todavía no se dibujó): va derecho al login.
+      redirectToLoginWithReason("inactividad");
       return;
     }
     setSession(stored);
@@ -74,14 +119,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Interceptor de sesión inválida (401 del backend) — RF-4 (respaldo), RF-7.
   useEffect(() => {
-    registerSessionInvalidHandler(redirectToLoginSilently);
-  }, [redirectToLoginSilently]);
+    registerSessionInvalidHandler(() => endSessionWithNotice("sesion-invalida"));
+  }, [endSessionWithNotice]);
 
   // Logout reflejado entre pestañas — RF-3.
   useEffect(() => {
     return onBroadcastLogout(() => {
       setSession(null);
       setStatus("unauthenticated");
+      // Si el aviso de expiración estaba abierto, el logout de la otra pestaña lo deja sin
+      // sentido: se cierra para no tapar el login.
+      sessionEndRef.current = null;
+      setSessionEnd(null);
       router.replace("/login");
     });
   }, [router]);
@@ -110,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const intervalId = window.setInterval(() => {
       const current = readSessionCookie();
       if (current && isExpiredByInactivity(current, INACTIVITY_TIMEOUT_MINUTES)) {
-        redirectToLoginSilently();
+        endSessionWithNotice("inactividad");
       }
     }, INACTIVITY_CHECK_INTERVAL_MS);
 
@@ -120,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       window.clearInterval(intervalId);
     };
-  }, [status, redirectToLoginSilently]);
+  }, [status, endSessionWithNotice]);
 
   async function login(data: LoginRequest) {
     setIsLoading(true);
@@ -142,9 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
-    clearSessionCookie();
-    setSession(null);
-    setStatus("unauthenticated");
+    clearSessionLocally();
     writeBroadcastSignal();
 
     try {
@@ -159,6 +206,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{ status, session, isLoading, login, logout }}>
       {children}
+      {sessionEnd !== null && (
+        <SessionExpiredModal reason={sessionEnd} onConfirm={goToLoginAfterNotice} />
+      )}
     </AuthContext.Provider>
   );
 }

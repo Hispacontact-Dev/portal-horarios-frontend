@@ -25,3 +25,11 @@ export interface ShiftTemplateCreate {
 }
 
 export type ShiftTemplateUpdate = ShiftTemplateCreate;
+
+// El backend devuelve el id y el nombre de la plantilla borrada (en vez de un 204 sin cuerpo)
+// porque el portal parsea toda respuesta; el documento desaparece, así que este nombre es lo
+// único que queda para el mensaje de confirmación.
+export interface ShiftTemplateDeleted {
+  id: string;
+  name: string;
+}
