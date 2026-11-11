@@ -9,3 +9,7 @@ export const LOGOUT_BROADCAST_KEY = "portal_horarios_logout_signal";
 
 // Nombre del query param que guarda la pantalla previa a una expiración de sesión.
 export const NEXT_QUERY_PARAM = "next";
+
+// Nombre del query param que guarda el motivo por el que se cerró la sesión, para que
+// la pantalla de login pueda explicarlo en vez de aparecer sin contexto.
+export const REASON_QUERY_PARAM = "motivo";

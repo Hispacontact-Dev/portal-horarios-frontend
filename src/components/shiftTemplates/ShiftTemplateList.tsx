@@ -24,6 +24,7 @@ interface ShiftTemplateListProps {
   templates: ShiftTemplate[];
   onEdit: (template: ShiftTemplate) => void;
   onDuplicate: (template: ShiftTemplate) => void;
+  onDelete: (template: ShiftTemplate) => void;
   actionsDisabled?: boolean;
 }
 
@@ -33,11 +34,12 @@ export function ShiftTemplateList({
   templates,
   onEdit,
   onDuplicate,
+  onDelete,
   actionsDisabled = false,
 }: ShiftTemplateListProps) {
   return (
-    <div className="min-w-[760px]">
-      <div className="grid grid-cols-[200px_minmax(0,1fr)_120px_160px] items-center gap-x-[18px] border-b border-[var(--divider)] pb-1.5 text-[10px] uppercase tracking-[.1em] text-[var(--neutral-700)]">
+    <div className="min-w-[860px]">
+      <div className="grid grid-cols-[200px_minmax(0,1fr)_120px_250px] items-center gap-x-[18px] border-b border-[var(--divider)] pb-1.5 text-[10px] uppercase tracking-[.1em] text-[var(--neutral-700)]">
         <span>Plantilla</span>
         <div className="flex justify-between" aria-hidden="true">
           {HOUR_TICKS.map((tick) => (
@@ -53,7 +55,7 @@ export function ShiftTemplateList({
       {templates.map((template) => (
         <div
           key={template.id}
-          className="grid min-h-[56px] grid-cols-[200px_minmax(0,1fr)_120px_160px] items-center gap-x-[18px] border-b border-[var(--divider)]"
+          className="grid min-h-[56px] grid-cols-[200px_minmax(0,1fr)_120px_250px] items-center gap-x-[18px] border-b border-[var(--divider)]"
         >
           <div className="flex flex-col gap-0.5">
             <span className="font-medium">{template.name}</span>
@@ -112,6 +114,16 @@ export function ShiftTemplateList({
                 disabled={actionsDisabled}
               >
                 Duplicar
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                className="h-[30px] px-3 text-[13px]"
+                aria-label={`Eliminar ${template.name}`}
+                onClick={() => onDelete(template)}
+                disabled={actionsDisabled}
+              >
+                Eliminar
               </Button>
             </div>
           </RoleGate>

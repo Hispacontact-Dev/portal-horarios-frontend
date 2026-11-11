@@ -5,12 +5,14 @@ import { Corners } from "@/components/dashboard/Corners";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { ShiftTemplateList } from "@/components/shiftTemplates/ShiftTemplateList";
 import { ShiftTemplateForm } from "@/components/shiftTemplates/ShiftTemplateForm";
+import { DeleteTemplateConfirmModal } from "@/components/shiftTemplates/DeleteTemplateConfirmModal";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Toast } from "@/components/ui/Toast";
 import { Spinner } from "@/components/ui/Spinner";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useShiftTemplates } from "@/lib/hooks/useShiftTemplates";
+import { useDeleteShiftTemplate } from "@/lib/hooks/useShiftTemplateActions";
 import { useToast } from "@/lib/hooks/useToast";
 import type { ShiftTemplate } from "@/types/shiftTemplate";
 import type { ShiftTemplateFormValues } from "@/lib/hooks/useShiftTemplateForm";
@@ -50,8 +52,11 @@ export function PlantillasTab() {
   const { status, shiftTemplates, error } = useShiftTemplates();
   const [localTemplates, setLocalTemplates] = useState<ShiftTemplate[] | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ShiftTemplate | null>(null);
   const toast = useToast();
+  const deleteAction = useDeleteShiftTemplate();
   const templates = localTemplates ?? shiftTemplates;
+  const isDeleting = deleteAction.state.status === "submitting";
 
   function upsertTemplate(entry: ShiftTemplate) {
     setLocalTemplates((current) => {
@@ -61,6 +66,20 @@ export function PlantillasTab() {
     });
     setDraft(null);
     toast.show(`Plantilla «${entry.name}» guardada`);
+  }
+
+  function removeTemplate(id: string) {
+    setLocalTemplates((current) => (current ?? shiftTemplates).filter((item) => item.id !== id));
+  }
+
+  async function handleDelete() {
+    if (pendingDelete === null) return;
+    const result = await deleteAction.submit(pendingDelete.id);
+    // Sin resultado el diálogo queda abierto: el error se muestra dentro, sobre el mismo botón.
+    if (!result) return;
+    removeTemplate(result.id);
+    setPendingDelete(null);
+    toast.show(`Plantilla «${result.name}» eliminada`);
   }
 
   return (
@@ -96,6 +115,8 @@ export function PlantillasTab() {
             templates={templates}
             onEdit={(template) => setDraft({ kind: "edit", template })}
             onDuplicate={(source) => setDraft({ kind: "duplicate", source })}
+            onDelete={(template) => setPendingDelete(template)}
+            actionsDisabled={isDeleting}
           />
         </div>
       )}
@@ -121,6 +142,17 @@ export function PlantillasTab() {
             onCancel={() => setDraft(null)}
           />
         </Dialog>
+      )}
+
+      {pendingDelete !== null && (
+        <DeleteTemplateConfirmModal
+          isOpen
+          templateName={pendingDelete.name}
+          isSubmitting={isDeleting}
+          error={deleteAction.state.status === "error" ? deleteAction.state.error.message : null}
+          onConfirm={handleDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
       )}
 
       {toast.message && <Toast message={toast.message} />}

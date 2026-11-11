@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { SessionExpiredNotice } from "@/components/auth/SessionExpiredNotice";
 import { LiveClock } from "@/components/auth/LiveClock";
 import { Brand } from "@/components/layout/Brand";
 
@@ -13,6 +14,7 @@ export default function LoginPage() {
 
       <LiveClock variant="clock" />
       <Suspense fallback={null}>
+        <SessionExpiredNotice />
         <LoginForm />
       </Suspense>
 
