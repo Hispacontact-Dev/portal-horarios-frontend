@@ -11,6 +11,7 @@ export const ROUTE_PATHS = {
   auditoria: "/auditoria",
   horarios: "/horarios",
   configuracion: "/configuracion",
+  operacion: "/operacion",
 } as const;
 
 export const ROLE_LABELS: Record<Role, string> = {
