@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { NEXT_QUERY_PARAM, SESSION_COOKIE_NAME } from "@/lib/session/constants";
+import { isOpsRoute } from "@/lib/utils/ops/sections";
+import { landingPathForRole } from "@/lib/utils/role";
 import type { Session } from "@/types/session";
 
 function readSessionFromRequest(request: NextRequest): Session | null {
@@ -28,7 +30,7 @@ export function middleware(request: NextRequest) {
 
   if (isLoginPage) {
     if (session) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL(landingPathForRole(session.role), request.url));
     }
     return NextResponse.next();
   }
@@ -37,6 +39,13 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set(NEXT_QUERY_PARAM, pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Segregación de módulos: el de operación es de `planeacion` y el portal de Junta no es
+  // suyo. Quien entra al territorio del otro vuelve a su pantalla de entrada. Esto es
+  // conveniencia de UX; la autoridad sigue siendo el 403 del backend.
+  if (isOpsRoute(pathname) !== (session.role === "planeacion")) {
+    return NextResponse.redirect(new URL(landingPathForRole(session.role), request.url));
   }
 
   if (session.role === "lider" && isEditOnlyRoute(pathname)) {

@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "gestion_humana" | "lider";
+export type UserRole = "admin" | "gestion_humana" | "lider" | "planeacion";
 
 export interface User {
   id: string;
@@ -11,15 +11,15 @@ export interface User {
   created_by: string | null;
 }
 
-// El backend solo permite crear cuentas gestion_humana/lider vía POST /users.
+// El backend permite crear cuentas gestion_humana/lider/planeacion vía POST /users.
 export interface UserCreate {
   full_name: string;
   email: string;
   role: Exclude<UserRole, "admin">;
 }
 
-// El backend solo admite estos dos roles al cambiar el de una cuenta: `admin` es
-// un valor legacy que se canonicaliza a `gestion_humana` y no se puede asignar.
+// `admin` es un valor legacy que se canonicaliza a `gestion_humana` y no se puede
+// asignar; el resto de los roles sí.
 export interface UserRoleUpdate {
   role: Exclude<UserRole, "admin">;
 }

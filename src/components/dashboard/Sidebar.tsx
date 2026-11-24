@@ -18,6 +18,7 @@ const NAV = [
 const ROLE_INITIALS: Record<Role, string> = {
   gestion_humana: "GH",
   lider: "LI",
+  planeacion: "PL",
 };
 
 export function Sidebar() {

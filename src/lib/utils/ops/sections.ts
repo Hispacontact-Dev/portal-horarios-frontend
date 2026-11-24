@@ -33,6 +33,13 @@ export const OPS_SECTIONS: OpsSection[] = [
   section("historial", "Historial"),
 ];
 
+// Todo el módulo cuelga de un solo prefijo: con esto el middleware decide de quién es la
+// ruta sin repetir el string.
+export function isOpsRoute(pathname: string): boolean {
+  const base = ROUTE_PATHS.operacion;
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
 export function opsSectionByKey(key: OpsSectionKey): OpsSection {
   const found = OPS_SECTIONS.find((it) => it.key === key);
   if (!found) throw new Error(`Sub-pestaña desconocida del módulo de operación: ${key}`);

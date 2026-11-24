@@ -17,6 +17,7 @@ export const ROUTE_PATHS = {
 export const ROLE_LABELS: Record<Role, string> = {
   gestion_humana: "Gestión Humana",
   lider: "Líder",
+  planeacion: "Planeación",
 };
 
 // Días de la semana, de lunes a domingo. `WORKWEEK_WEEKDAYS` es el predeterminado laboral: el fin

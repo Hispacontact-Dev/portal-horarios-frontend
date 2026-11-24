@@ -11,6 +11,7 @@ import type { Role } from "@/types/session";
 const ROLE_INITIALS: Record<Role, string> = {
   gestion_humana: "GH",
   lider: "LI",
+  planeacion: "PL",
 };
 
 // Menú propio del módulo: mismo lenguaje visual que el del portal de Junta Directiva, pero

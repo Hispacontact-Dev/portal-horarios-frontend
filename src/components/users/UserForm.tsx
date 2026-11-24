@@ -72,6 +72,7 @@ export function UserForm({ onSuccess, onCancel }: UserFormProps) {
       >
         <option value="lider">Líder</option>
         <option value="gestion_humana">Gestión Humana</option>
+        <option value="planeacion">Planeación</option>
       </Select>
 
       {state.status === "error" && state.error && <ErrorState message={state.error.message} />}

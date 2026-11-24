@@ -9,7 +9,7 @@ import { ROLE_LABELS } from "@/lib/utils/constants";
 import { canonicalRole, roleLabel } from "@/lib/utils/role";
 import type { User, UserRoleUpdate } from "@/types/user";
 
-const ASSIGNABLE_ROLES: UserRoleUpdate["role"][] = ["gestion_humana", "lider"];
+const ASSIGNABLE_ROLES: UserRoleUpdate["role"][] = ["gestion_humana", "lider", "planeacion"];
 
 function initials(user: User): string {
   const source = user.full_name.trim() === "" ? user.email.replace(/@.*/, "") : user.full_name;
