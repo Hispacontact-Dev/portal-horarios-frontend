@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { NEXT_QUERY_PARAM, SESSION_COOKIE_NAME } from "@/lib/session/constants";
-import { isOpsRoute } from "@/lib/utils/ops/sections";
+import { isOpsRoute } from "@ops/utils";
 import { landingPathForRole } from "@/lib/utils/role";
 import type { Session } from "@/types/session";
 

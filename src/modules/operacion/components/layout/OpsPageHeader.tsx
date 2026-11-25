@@ -1,4 +1,4 @@
-import type { OpsSection } from "@/lib/utils/ops/sections";
+import type { OpsSection } from "../../utils/sections";
 
 interface OpsPageHeaderProps {
   section: OpsSection;

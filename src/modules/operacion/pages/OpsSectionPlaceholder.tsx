@@ -1,6 +1,6 @@
 import { EmptyState } from "@/components/ui/EmptyState";
-import { OpsPageHeader } from "@/components/ops/layout/OpsPageHeader";
-import { opsSectionByKey, type OpsSectionKey } from "@/lib/utils/ops/sections";
+import { OpsPageHeader } from "../components/layout/OpsPageHeader";
+import { opsSectionByKey, type OpsSectionKey } from "../utils/sections";
 
 interface OpsSectionPlaceholderProps {
   sectionKey: OpsSectionKey;

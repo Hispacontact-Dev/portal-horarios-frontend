@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Brand } from "@/components/layout/Brand";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { ROLE_LABELS } from "@/lib/utils/constants";
-import { OPS_SECTIONS } from "@/lib/utils/ops/sections";
+import { OPS_SECTIONS } from "../../utils/sections";
 import type { Role } from "@/types/session";
 
 const ROLE_INITIALS: Record<Role, string> = {
