@@ -1,2 +1,2 @@
 // Hooks del módulo, construidos sobre `useAsyncResource` / `useAsyncAction`.
-export {};
+export { useOpsSectionProbe } from "./useOpsSectionProbe";
